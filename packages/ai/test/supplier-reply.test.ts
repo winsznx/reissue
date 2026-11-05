@@ -30,6 +30,9 @@ describe("parseConversionStatement", () => {
       sku: "LL-STR-050",
     });
   });
+  it("skips the word SKU and takes the code that follows", () => {
+    expect(parseConversionStatement("packed 20 pcs per carton for SKU LL-SHD-090")?.sku).toBe("LL-SHD-090");
+  });
   it("reads 'N pcs per carton'", () => expect(parseConversionStatement("it's 48 pcs per ctn")?.piecesPerPackage).toBe("48"));
   it("ignores text without a pack size", () => expect(parseConversionStatement("we shipped 20 cartons")).toBeNull());
 });

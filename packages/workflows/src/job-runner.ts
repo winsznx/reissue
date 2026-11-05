@@ -12,11 +12,11 @@ import { markJob, WORK_QUEUE, type WorkJobName, type WorkJobs } from "./queue.js
 import { runReconcile } from "./reconcile-service.js";
 import type { Services } from "./services.js";
 
-type Handler<N extends WorkJobName> = (svc: Services, data: WorkJobs[N]) => Promise<unknown>;
+type Handler<N extends WorkJobName> = (svc: Services, data: WorkJobs[N], jobId: string) => Promise<unknown>;
 
 const HANDLERS: { [N in WorkJobName]: Handler<N> } = {
   extract_version: (svc, d) => runExtraction(svc, d.versionId),
-  reconcile: (svc, d) => runReconcile(svc, d.shipmentId, d.epoch, d.reason),
+  reconcile: (svc, d, jobId) => runReconcile(svc, d.shipmentId, d.epoch, d.reason, jobId),
   request_review: (svc, d) => requestReview(svc, d.shipmentId, d.epoch, d.trigger),
   review_timeout: (svc, d) => reviewTimeout(svc, d.shipmentId, d.taskId),
   supplier_request: (svc, d) => sendSupplierRequest(svc, d.shipmentId, d.epoch, d.trigger),
@@ -33,7 +33,7 @@ export async function runJob(svc: Services, job: Job): Promise<unknown> {
   const started = performance.now();
   await markJob(svc.db, job.id!, { status: "RUNNING", attempts: job.attemptsMade + 1 });
   try {
-    const result = await handler(svc, job.data as WorkJobs[WorkJobName]);
+    const result = await handler(svc, job.data as WorkJobs[WorkJobName], job.id!);
     await markJob(svc.db, job.id!, { status: "COMPLETED", durationMs: Math.round(performance.now() - started), lastError: null });
     return result;
   } catch (error) {

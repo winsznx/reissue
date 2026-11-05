@@ -45,7 +45,16 @@ function statedQuantity(text: string): string | null {
 
 const PER = /(\d+(?:\.\d+)?)\s*(?:pcs|pieces|pc|units)\s*(?:per|\/|in (?:a|one|each))\s*(carton|ctn|ctns|box|pallet|plt)\b/i;
 const EQUALS = /\b(?:1|one)\s*(carton|ctn|box|pallet|plt)\s*(?:=|is|has|holds|contains)\s*(\d+(?:\.\d+)?)\s*(?:pcs|pieces|pc|units)\b/i;
-const SKU = /\b(?:for|sku|item)\s+([A-Z0-9][A-Z0-9-]{2,})\b/i;
+const SKU_KEYWORD = /\b(?:for|sku|item|part)\b/i;
+
+/** First SKU-like token after a "for/sku/item" keyword: letters and digits, usually hyphenated, at least one digit. */
+function skuAfterKeyword(text: string): string | null {
+  const keyword = SKU_KEYWORD.exec(text);
+  if (!keyword) return null;
+  const tail = text.slice(keyword.index + keyword[0].length).split(/[\s,;:]+/).slice(0, 4);
+  const token = tail.find((t) => /\d/.test(t) && /^[A-Za-z0-9][A-Za-z0-9-]*[A-Za-z0-9]$/.test(t) && /[A-Za-z]/.test(t));
+  return token ? token.toUpperCase() : null;
+}
 
 /** Extracts an explicit pack-size statement such as "20 pcs per carton" or "1 carton = 20 pcs". */
 export function parseConversionStatement(text: string): ConversionStatement | null {
@@ -54,7 +63,7 @@ export function parseConversionStatement(text: string): ConversionStatement | nu
   const [count, unitWord, quote] = per ? [per[1], per[2], per[0]] : eq ? [eq[2], eq[1], eq[0]] : [null, null, null];
   if (!count || !unitWord || !quote) return null;
   const packageUnit = /pallet|plt/i.test(unitWord) ? "pallet" : "carton";
-  return { piecesPerPackage: count, packageUnit, sku: SKU.exec(text)?.[1]?.toUpperCase() ?? null, quote };
+  return { piecesPerPackage: count, packageUnit, sku: skuAfterKeyword(text), quote };
 }
 
 const ModelOutput = z.object({

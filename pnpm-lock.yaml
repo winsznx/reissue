@@ -303,6 +303,9 @@ importers:
       '@reissue/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
+      '@reissue/core':
+        specifier: workspace:*
+        version: link:../../packages/core
       next:
         specifier: ^16.4.5
         version: 16.4.5(@babel/core@7.29.7)(@playwright/test@1.64.1)(@types/node@24.19.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -512,6 +515,43 @@ importers:
       zod:
         specifier: ^4.3.4
         version: 4.6.7
+    devDependencies:
+      typescript:
+        specifier: ^5.8.3
+        version: 5.9.3
+      vitest:
+        specifier: ^4.0.0
+        version: 4.1.12(@types/node@24.19.2)(vite@8.3.5(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15))
+
+  tests:
+    dependencies:
+      '@reissue/api':
+        specifier: workspace:*
+        version: link:../apps/api
+      '@reissue/artifacts':
+        specifier: workspace:*
+        version: link:../packages/artifacts
+      '@reissue/contracts':
+        specifier: workspace:*
+        version: link:../packages/contracts
+      '@reissue/core':
+        specifier: workspace:*
+        version: link:../packages/core
+      '@reissue/db':
+        specifier: workspace:*
+        version: link:../packages/db
+      '@reissue/switch-adapter':
+        specifier: workspace:*
+        version: link:../packages/switch-adapter
+      '@reissue/workflows':
+        specifier: workspace:*
+        version: link:../packages/workflows
+      drizzle-orm:
+        specifier: ^0.45.4
+        version: 0.45.4(postgres@3.4.9)
+      postgres:
+        specifier: ^3.4.7
+        version: 3.4.9
     devDependencies:
       typescript:
         specifier: ^5.8.3
