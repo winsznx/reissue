@@ -1,0 +1,12 @@
+{
+  "name": "@reissue/document-worker",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "uv run uvicorn reissue_worker.api:app --reload --host 0.0.0.0 --port 4220",
+    "test": "uv run pytest",
+    "lint": "uv run ruff check src tests && uv run ruff format --check src tests",
+    "typecheck": "uv run mypy",
+    "fixtures": "uv run python -m reissue_worker.fixtures ../../tests/fixtures/documents"
+  }
+}
