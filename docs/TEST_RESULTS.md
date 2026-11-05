@@ -94,6 +94,9 @@ These manual live checks were also done in the Mattermost rooms:
   asking again didn't open a second one
 - a 22 MB attachment that the bridge dropped got the case's upload link
 - untagged supplier replies reached the liaison through follow-ups and `!assign-agent`
+- reminders on the labelled demo timing profile (SHP-0285, supplier left silent): request at
+  01:49:53, reminder 1 at 01:51:53, reminder 2 at 01:53:53, escalation to the operations room at
+  01:56:53. Each fired exactly once, and cases on the standard profile got none
 
 ## Detection on controlled documents
 
