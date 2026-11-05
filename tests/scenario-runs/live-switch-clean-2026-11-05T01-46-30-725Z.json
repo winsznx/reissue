@@ -1,0 +1,26 @@
+{
+  "switchVersion": "0.31.0",
+  "recordedAt": "2026-11-05T01:46:30.726Z",
+  "runs": [
+    {
+      "run": 1,
+      "variant": "clean",
+      "caseCode": "SHP-0281",
+      "timings": {
+        "chatToSwitchEventMs": 159,
+        "chatToAcknowledgementMs": 310,
+        "chatToDiscrepancyMs": 467,
+        "handoffToExaminerResultMs": 111867,
+        "chatToSupplierRequestMs": 112686,
+        "supplierReplyToCaseStateMs": 102,
+        "supplierReplyToLiaisonAnswerMs": 10551,
+        "replacementToRecheckMs": 245,
+        "replacementToReadyMessageMs": 391
+      },
+      "readyMessages": 1,
+      "packetPostId": "uar5axj91inwzym8d7d4hq6tyy",
+      "supplierRoomPosts": 8,
+      "participants": "scripted Mattermost accounts (operator: user, supplier: li.wei)"
+    }
+  ]
+}
