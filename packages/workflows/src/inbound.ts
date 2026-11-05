@@ -145,8 +145,11 @@ async function handleOpsMessage(svc: Services, binding: RoomBinding, roomId: str
   const uploadHint = `${svc.config.REISSUE_PUBLIC_URL}/upload${shipment ? `?case=${shipment.caseCode}` : ""}`;
 
   let attachments = msg.attachments;
+  let earlierMessageIds: string[] = [];
   if (!attachments.length && /\b(check|compare|review)\b/i.test(msg.body) && !shipment) {
-    attachments = await recentUnprocessedAttachments(svc, roomId, msg);
+    const earlier = await recentUnprocessedAttachments(svc, roomId, msg);
+    attachments = earlier.attachments;
+    earlierMessageIds = earlier.messageIds;
   }
 
   if (attachments.length) {
@@ -161,6 +164,12 @@ async function handleOpsMessage(svc: Services, binding: RoomBinding, roomId: str
       replyTo: { roomId, threadId: shipment?.opsThreadId ?? threadId },
       correlationId: msg.message_id,
     });
+    if (earlierMessageIds.length) {
+      await svc.db
+        .update(schema.switchEvents)
+        .set({ status: "PROCESSED", detail: `files taken in by ${msg.message_id} (${result.shipment.caseCode})`, processedAt: sql`now()` })
+        .where(and(eq(schema.switchEvents.roomId, roomId), inArray(schema.switchEvents.messageId, earlierMessageIds)));
+    }
     return { status: "PROCESSED", detail: `intake ${result.intakeId}: ${result.accepted.length} accepted, ${result.duplicates.length} duplicate, ${result.rejected.length} rejected` };
   }
 
@@ -207,17 +216,22 @@ async function statusLine(svc: Services, shipment: Shipment): Promise<string> {
 }
 
 /** "Check the documents above": finds files a person posted recently in this thread or room that no case holds yet. */
-async function recentUnprocessedAttachments(svc: Services, roomId: string, msg: MessagePayload): Promise<AttachmentRef[]> {
-  if (!svc.switch) return [];
+async function recentUnprocessedAttachments(svc: Services, roomId: string, msg: MessagePayload): Promise<{ attachments: AttachmentRef[]; messageIds: string[] }> {
+  if (!svc.switch) return { attachments: [], messageIds: [] };
   const context = await svc.switch.readContext(roomId, { limit: 20 });
-  const thread = context.threads.find((t) => t.root.id === (msg.thread_id ?? msg.message_id));
+  const thread = msg.thread_id ? context.threads.find((t) => t.root.id === msg.thread_id) : undefined;
   const entries = thread ? [thread.root, ...thread.replies] : context.threads.slice(-5).flatMap((t) => [t.root, ...t.replies]);
   const candidates = entries.filter((e) => e.attachments.length && e.sender === msg.sender && e.timestamp <= msg.timestamp && msg.timestamp - e.timestamp < 30 * 60_000);
   const ids = candidates.map((c) => c.id);
-  if (!ids.length) return [];
+  if (!ids.length) return { attachments: [], messageIds: [] };
+  const taken = await svc.db
+    .select({ id: schema.switchEvents.messageId })
+    .from(schema.switchEvents)
+    .where(and(eq(schema.switchEvents.roomId, roomId), inArray(schema.switchEvents.messageId, ids), sql`${schema.switchEvents.detail} like 'files taken in by %'`));
   const used = await svc.db.select({ id: schema.documentVersions.sourceMessageId }).from(schema.documentVersions).where(inArray(schema.documentVersions.sourceMessageId, ids));
-  const usedIds = new Set(used.map((u) => u.id));
-  return candidates.filter((c) => !usedIds.has(c.id)).flatMap((c) => c.attachments);
+  const usedIds = new Set([...taken, ...used].map((u) => u.id));
+  const fresh = candidates.filter((c) => !usedIds.has(c.id));
+  return { attachments: fresh.flatMap((c) => c.attachments), messageIds: fresh.map((c) => c.id) };
 }
 
 async function caseForSupplierMessage(svc: Services, roomId: string, msg: MessagePayload): Promise<{ shipment: Shipment | null; ambiguous: string[] }> {
