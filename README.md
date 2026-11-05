@@ -117,7 +117,7 @@ binds the rooms.
 
 ```bash
 pnpm test                 # unit tests: reconciler, adapter, artifacts, classifier, document worker
-pnpm test:integration     # 31 tests on real Postgres, Redis, S3 and the document worker
+pnpm test:integration     # 35 tests on real Postgres, Redis, S3 and the document worker
 pnpm scenario             # curated scenarios through the API, expected vs observed
 pnpm test:live            # live Switch loop (needs the local Switch setup)
 pnpm --filter @reissue/web test:e2e   # Workbench in a real browser
