@@ -12,7 +12,7 @@ from reissue_worker.config import WORKER_VERSION, Settings
 from reissue_worker.errors import EmptyDocument, PayloadTooLarge, UnsupportedMediaType
 from reissue_worker.fields import extract_fields
 from reissue_worker.layout import PageLayout
-from reissue_worker.llm import FieldAssistant, assist_missing_fields
+from reissue_worker.llm import FieldAssistant, assist_part
 from reissue_worker.models import (
     REQUIRED_FIELDS,
     DocumentPart,
@@ -22,6 +22,7 @@ from reissue_worker.models import (
     PageInfo,
 )
 from reissue_worker.pdf_text import check_page_limit, load_pages, open_document
+from reissue_worker.proposals import DocumentAssistant
 from reissue_worker.sniff import XLSX, sniff_mime
 from reissue_worker.tables import extract_line_items
 from reissue_worker.xlsx import load_sheets
@@ -86,14 +87,9 @@ def extract_document(
             part.fields = _merge_fields(table.totals, fields)
             part.line_items = table.line_items
             part.missing_fields = _missing(part)
-            if part.missing_fields and assistant is not None:
+            if assistant is not None:
                 with timer.measure("llm_assist"):
-                    part.fields.extend(
-                        assist_missing_fields(
-                            assistant, span.doc_type, part.missing_fields, part_pages, warnings
-                        )
-                    )
-                part.missing_fields = _missing(part)
+                    _assist(assistant, part, part_pages, warnings)
         parts.append(part)
 
     timer.timings["total"] = (time.perf_counter() - started) * 1000
@@ -106,6 +102,23 @@ def extract_document(
         warnings=warnings,
         timings_ms=timer.timings,
     )
+
+
+def _assist(
+    assistant: FieldAssistant, part: DocumentPart, pages: list[PageLayout], warnings: list[str]
+) -> None:
+    """Ask the model only for gaps: missing required fields, or line items on a part whose
+    document type carries them when the table parser found none."""
+    want_line_items = part.doc_type in REQUIRED_FIELDS and not part.line_items
+    wants_line_items = want_line_items and isinstance(assistant, DocumentAssistant)
+    if not part.missing_fields and not wants_line_items:
+        return
+    fields, line_items = assist_part(
+        assistant, part.doc_type, part.missing_fields, pages, warnings, want_line_items=want_line_items
+    )
+    part.fields.extend(fields)
+    part.line_items.extend(line_items)
+    part.missing_fields = _missing(part)
 
 
 def _load(data: bytes, mime: str, settings: Settings, warnings: list[str]) -> list[PageLayout]:
