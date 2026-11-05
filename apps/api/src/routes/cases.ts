@@ -96,7 +96,7 @@ export function caseRoutes(app: FastifyInstance, ctx: AppContext): void {
 
   app.get<{ Params: { caseId: string }; Querystring: { after?: string } }>("/v1/cases/:caseId/stream", async (request, reply) => {
     const shipment = await shipmentOr404(request.params.caseId);
-    let last = Number(request.query.after ?? request.headers["last-event-id"] ?? 0) || 0;
+    let last = Math.max(Number(request.query.after ?? 0) || 0, Number(request.headers["last-event-id"] ?? 0) || 0);
     reply.hijack();
     const raw = reply.raw;
     raw.writeHead(200, {
