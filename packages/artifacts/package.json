@@ -1,0 +1,17 @@
+{
+  "name": "@reissue/artifacts",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": { ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" } },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json --noEmit",
+    "test": "vitest run",
+    "lint": "eslint src test"
+  },
+  "dependencies": { "pdf-lib": "^1.17.1", "yazl": "^3.3.1", "yauzl": "^3.4.0" },
+  "devDependencies": { "@types/yazl": "^3.3.0", "@types/yauzl": "^2.10.3", "typescript": "^5.8.3", "vitest": "^4.0.0" }
+}
