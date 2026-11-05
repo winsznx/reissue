@@ -2,6 +2,10 @@
 
 **Wrong shipping papers in. Corrected shipment package out.**
 
+![A case in the Workbench: the packing list says 480 pcs against the invoice's 500, the supplier's revision arrives, and the open page rechecks to Ready for broker review without a reload](docs/media/reissue-loop.gif)
+
+<sub>Recorded from a real run of the quantity-correction scenario (`apps/web/scripts/record-gif.mjs`). The revision is the scripted fixture `packing-list-v2.pdf`; the documents are controlled test documents.</sub>
+
 Reissue is a teammate for small import and freight teams that lives in the chat they already use.
 Drop a commercial invoice and packing list into the operations room and mention `@reissue`.
 Reissue then:
