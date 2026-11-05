@@ -1,0 +1,27 @@
+{
+  "switchVersion": "0.31.0",
+  "recordedAt": "2026-11-05T01:08:52.037Z",
+  "runs": [
+    {
+      "run": 1,
+      "variant": "still-wrong",
+      "caseCode": "SHP-0252",
+      "timings": {
+        "chatToSwitchEventMs": 194,
+        "chatToAcknowledgementMs": 353,
+        "chatToDiscrepancyMs": 556,
+        "handoffToExaminerResultMs": 15786,
+        "chatToSupplierRequestMs": 17048,
+        "supplierReplyToCaseStateMs": 164,
+        "supplierReplyToLiaisonAnswerMs": 10445,
+        "stillWrongToFollowUpMs": 545,
+        "replacementToRecheckMs": 271,
+        "replacementToReadyMessageMs": 445
+      },
+      "readyMessages": 1,
+      "packetPostId": "jxzua66wpjydfemjcqrx5a9ine",
+      "supplierRoomPosts": 9,
+      "participants": "scripted Mattermost accounts (operator: user, supplier: li.wei)"
+    }
+  ]
+}

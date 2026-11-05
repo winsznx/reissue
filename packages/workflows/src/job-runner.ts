@@ -61,7 +61,7 @@ async function onExhausted(svc: Services, job: Job, message: string): Promise<vo
 }
 
 export function startWorkWorker(svc: Services, connection: ConnectionOptions, concurrency = 4): Worker {
-  const worker = new Worker(WORK_QUEUE, (job) => runJob(svc, job), { connection, concurrency, lockDuration: 120_000 });
+  const worker = new Worker(WORK_QUEUE, (job) => runJob(svc, job), { connection, concurrency, lockDuration: 20_000, stalledInterval: 10_000, maxStalledCount: 3 });
   worker.on("failed", (job, error) => svc.log.warn({ job: job?.name, jobId: job?.id, attempts: job?.attemptsMade, err: error.message }, "job failed"));
   worker.on("error", (error) => svc.log.error({ err: error.message }, "worker error"));
   return worker;
