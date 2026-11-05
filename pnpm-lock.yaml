@@ -285,9 +285,6 @@ importers:
       typescript:
         specifier: ^5.8.3
         version: 5.9.3
-      vitest:
-        specifier: ^4.0.0
-        version: 4.1.12(@types/node@24.19.2)(vite@8.3.5(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15))
 
   apps/document-worker: {}
 
