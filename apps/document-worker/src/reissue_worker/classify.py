@@ -1,7 +1,8 @@
 """Content-based document classification and splitting of multi-document files into parts.
 
-A printed title near the top of a page is the strongest signal; table vocabulary is weaker
-supporting evidence. A filename hint is recorded but can only break an exact tie between
+A printed title near the top of a page is the strongest signal; a title with an unrecognised
+qualifier in front ("CANADA CUSTOMS INVOICE") counts for less and caps the confidence, and table
+vocabulary is weaker supporting evidence. A filename hint is recorded but can only break an exact tie between
 content candidates, so a misnamed file is still classified by what it contains.
 """
 
@@ -17,6 +18,8 @@ from reissue_worker.models import DocType
 
 TITLE_WEIGHT = 10
 BODY_TITLE_WEIGHT = 4
+QUALIFIED_TITLE_WEIGHT = 4
+QUALIFIED_TITLE_CONFIDENCE = 0.7
 MIN_CONTENT_SCORE = 3
 TITLE_ZONE = 0.3
 
@@ -30,6 +33,7 @@ _TITLES: dict[DocType, re.Pattern[str]] = {
     "PURCHASE_ORDER": re.compile(r"purchase\s+order"),
     "CORRECTION_NOTE": re.compile(r"(correction|amendment)\s+(note|notice|letter)"),
 }
+_QUALIFIER = re.compile(r"^(?:[a-z]{2,}\s+){1,2}")
 _TITLE_SUFFIX = re.compile(
     r"\s*(\(.*\)|-\s*(page|continued|copy|original|revis\w*).*|(page|rev\.?)\s*\d+.*)?$"
 )
@@ -76,6 +80,7 @@ class PageVerdict:
     scores: Counter[DocType] = field(default_factory=Counter)
     title: DocType | None = None
     title_in_header: bool = False
+    title_qualified: bool = False
     signals: list[str] = field(default_factory=list)
 
 
@@ -142,16 +147,21 @@ def _score_page(page: PageLayout) -> PageVerdict:
     segments = [segment for line in page.lines for segment in split_segments(line)]
     for line in segments:
         normalized = _normalize(line.text)
+        in_header = line.y0 <= header_limit
         for doc_type, pattern in _TITLES.items():
-            if not _is_title(pattern, normalized):
+            if _is_title(pattern, normalized):
+                weight, qualified = (TITLE_WEIGHT if in_header else BODY_TITLE_WEIGHT), False
+            elif in_header and _is_qualified_title(pattern, line.text, normalized):
+                weight, qualified = QUALIFIED_TITLE_WEIGHT, True
+            else:
                 continue
-            in_header = line.y0 <= header_limit
-            weight = TITLE_WEIGHT if in_header else BODY_TITLE_WEIGHT
             if verdict.title is None or (in_header and not verdict.title_in_header):
                 verdict.title, verdict.title_in_header = doc_type, in_header
+                verdict.title_qualified = qualified
             verdict.scores[doc_type] += weight
             zone = "header" if in_header else "body"
-            verdict.signals.append(f"title '{line.text.strip()}' in {zone} -> {doc_type} (+{weight})")
+            kind = "qualified title" if qualified else "title"
+            verdict.signals.append(f"{kind} '{line.text.strip()}' in {zone} -> {doc_type} (+{weight})")
 
     text = _normalize(page.text)
     for doc_type, phrases in _BODY_SIGNALS.items():
@@ -175,7 +185,9 @@ def _resolve(verdict: PageVerdict, hinted: DocType | None) -> tuple[DocType, flo
         else:
             return "UNKNOWN", 0.3
     runner_up = next((score for doc_type, score in ranked if doc_type != top_type), 0)
-    if verdict.title == top_type:
+    if verdict.title == top_type and verdict.title_qualified:
+        confidence = QUALIFIED_TITLE_CONFIDENCE
+    elif verdict.title == top_type:
         confidence = 0.97 if verdict.title_in_header else 0.85
     else:
         confidence = min(0.75, 0.4 + 0.05 * top_score)
@@ -195,6 +207,15 @@ def _is_title(pattern: re.Pattern[str], normalized_line: str) -> bool:
     if match is None:
         return False
     return _TITLE_SUFFIX.fullmatch(normalized_line[match.end() :]) is not None
+
+
+def _is_qualified_title(pattern: re.Pattern[str], text: str, normalized_line: str) -> bool:
+    """A heading set in capitals or title case whose last words are a known title."""
+    words = text.split()
+    if not (text.isupper() or all(w[:1].isupper() for w in words if w[:1].isalpha())):
+        return False
+    qualifier = _QUALIFIER.match(normalized_line)
+    return qualifier is not None and _is_title(pattern, normalized_line[qualifier.end() :])
 
 
 def _normalize(text: str) -> str:

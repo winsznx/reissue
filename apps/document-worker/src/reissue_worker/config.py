@@ -6,7 +6,8 @@ from typing import Literal
 
 WORKER_VERSION = "0.1.0"
 
-ModelProvider = Literal["anthropic", "none"]
+ModelProvider = Literal["anthropic", "claude_code", "none"]
+MODEL_PROVIDERS: tuple[ModelProvider, ...] = ("anthropic", "claude_code", "none")
 
 
 def _int_env(name: str, default: int) -> int:
@@ -31,18 +32,33 @@ class Settings:
     model: str = "claude-sonnet-5-5"
     anthropic_api_key: str | None = None
     anthropic_base_url: str = "https://api.anthropic.com"
+    claude_code_bin: str = "claude"
+    claude_code_model: str | None = None
+    model_timeout_seconds: int = 180
 
     @classmethod
     def from_env(cls) -> Settings:
-        provider = os.environ.get("EXTRACTION_MODEL_PROVIDER", "none").strip().lower() or "none"
-        if provider not in ("anthropic", "none"):
-            raise ValueError(f"EXTRACTION_MODEL_PROVIDER must be 'anthropic' or 'none', got {provider!r}")
+        provider = _provider(os.environ.get("EXTRACTION_MODEL_PROVIDER", ""))
         defaults = cls()
+        model = os.environ.get("EXTRACTION_MODEL", "").strip()
         return cls(
             max_upload_bytes=_int_env("MAX_UPLOAD_BYTES", defaults.max_upload_bytes),
             max_pages=_int_env("MAX_PAGES", defaults.max_pages),
-            model_provider="anthropic" if provider == "anthropic" else "none",
-            model=os.environ.get("EXTRACTION_MODEL", "").strip() or defaults.model,
+            model_provider=provider,
+            model=model or defaults.model,
             anthropic_api_key=os.environ.get("ANTHROPIC_API_KEY") or None,
             anthropic_base_url=os.environ.get("ANTHROPIC_BASE_URL") or defaults.anthropic_base_url,
+            claude_code_bin=os.environ.get("CLAUDE_CODE_BIN", "").strip() or defaults.claude_code_bin,
+            claude_code_model=model or None,
+            model_timeout_seconds=_int_env(
+                "EXTRACTION_MODEL_TIMEOUT_SECONDS", defaults.model_timeout_seconds
+            ),
         )
+
+
+def _provider(raw: str) -> ModelProvider:
+    name = raw.strip().lower() or "none"
+    for provider in MODEL_PROVIDERS:
+        if provider == name:
+            return provider
+    raise ValueError(f"EXTRACTION_MODEL_PROVIDER must be one of {', '.join(MODEL_PROVIDERS)}; got {name!r}")

@@ -55,6 +55,24 @@ _UNIT_ALIASES: dict[str, Unit] = {
     "metres": "m",
 }
 
+CURRENCY_CODES = (
+    "USD",
+    "EUR",
+    "GBP",
+    "CNY",
+    "RMB",
+    "JPY",
+    "HKD",
+    "CAD",
+    "AUD",
+    "CHF",
+    "SGD",
+    "INR",
+    "KRW",
+    "TWD",
+)
+CURRENCY_CODE = re.compile("|".join(CURRENCY_CODES))
+
 _NUMBER = re.compile(r"[-+]?\d{1,3}(?:[' \u00a0\u202f]\d{3})+(?:[.,]\d+)?|[-+]?\d[\d.,]*")
 _UNIT_WORD = re.compile(r"[A-Za-z]+\.?")
 
@@ -146,6 +164,8 @@ _DATE_FORMATS = (
     "%d.%m.%Y",
     "%d-%m-%Y",
     "%m/%d/%Y",
+    "%d/%m/%y",
+    "%m/%d/%y",
 )
 
 
