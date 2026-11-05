@@ -45,6 +45,8 @@ const EnvSchema = z.object({
   EXTRACTION_API_KEY: optional,
   REPLY_CLASSIFIER_PROVIDER: optional,
   DEMO_TIMING_PROFILE: bool,
+  FILE_RETENTION_DAYS: z.coerce.number().int().positive().default(365),
+  RETENTION_ENFORCE: bool,
   LOG_LEVEL: z.string().default("info"),
 });
 

@@ -19,3 +19,4 @@ export * from "./outbox.js";
 export * from "./job-runner.js";
 export * from "./bootstrap.js";
 export * from "./switch-credentials.js";
+export * from "./retention.js";

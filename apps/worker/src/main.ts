@@ -1,4 +1,4 @@
-import { createServices, redisConnection, startWorkWorker, sweepStranded } from "@reissue/workflows";
+import { applyRetention, createServices, redisConnection, startWorkWorker, sweepStranded } from "@reissue/workflows";
 
 /**
  * Workflow worker: runs extraction, reconciliation, agent handoffs, supplier requests,
@@ -12,11 +12,18 @@ const sweep = setInterval(() => {
   sweepStranded(svc).catch((error: unknown) => svc.log.error({ err: String(error) }, "sweep failed"));
 }, 30_000);
 
+const retention = setInterval(() => {
+  applyRetention(svc, { dryRun: !svc.config.RETENTION_ENFORCE })
+    .then((r) => r.cases.length && svc.log.info({ cases: r.cases.length, dryRun: r.dryRun, cutoff: r.cutoff }, "retention pass"))
+    .catch((error: unknown) => svc.log.error({ err: String(error) }, "retention pass failed"));
+}, 6 * 3600_000);
+
 svc.log.info({ switch: svc.config.switchEnabled, examiner: svc.config.SWITCH_EXAMINER_NAME, liaison: svc.config.SWITCH_LIAISON_NAME }, "workflow worker started");
 
 const shutdown = async (signal: string) => {
   svc.log.info({ signal }, "worker shutting down");
   clearInterval(sweep);
+  clearInterval(retention);
   await worker.close();
   await close();
   process.exit(0);

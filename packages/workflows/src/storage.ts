@@ -1,5 +1,6 @@
 import {
   CreateBucketCommand,
+  DeleteObjectCommand,
   GetObjectCommand,
   HeadBucketCommand,
   HeadObjectCommand,
@@ -64,6 +65,10 @@ export class ObjectStore {
     const out = await this.s3.send(new GetObjectCommand({ Bucket: this.bucket, Key: key }));
     if (!out.Body) throw new Error(`Object ${key} has no body`);
     return Buffer.from(await out.Body.transformToByteArray());
+  }
+
+  async delete(key: string): Promise<void> {
+    await this.s3.send(new DeleteObjectCommand({ Bucket: this.bucket, Key: key }));
   }
 
   async ping(): Promise<number> {
