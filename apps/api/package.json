@@ -29,5 +29,20 @@
     "postgres": "^3.4.7",
     "zod": "^4.3.4"
   },
-  "devDependencies": { "tsx": "^4.20.0", "typescript": "^5.8.3", "vitest": "^4.0.0" }
+  "devDependencies": {
+    "tsx": "^4.20.0",
+    "typescript": "^5.8.3",
+    "vitest": "^4.0.0"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/app.d.ts",
+      "default": "./dist/app.js"
+    },
+    "./context": {
+      "types": "./dist/context.d.ts",
+      "default": "./dist/context.js"
+    }
+  },
+  "types": "./dist/app.d.ts"
 }

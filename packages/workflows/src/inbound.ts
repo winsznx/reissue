@@ -126,8 +126,19 @@ async function reply(svc: Services, shipmentId: string | null, roomId: string, t
   if (id) await svc.queue.enqueueOutbox(id);
 }
 
+/** A redelivered message whose files were already taken in must not open a second case. */
+async function alreadyIngested(svc: Services, msg: MessagePayload): Promise<boolean> {
+  const [row] = await svc.db
+    .select({ id: schema.documentVersions.id })
+    .from(schema.documentVersions)
+    .where(eq(schema.documentVersions.sourceMessageId, msg.message_id))
+    .limit(1);
+  return Boolean(row);
+}
+
 async function handleOpsMessage(svc: Services, binding: RoomBinding, roomId: string, msg: MessagePayload): Promise<Outcome> {
   if (!msg.addressed) return { status: "IGNORED", detail: "not addressed to reissue" };
+  if (msg.attachments.length && (await alreadyIngested(svc, msg))) return { status: "IGNORED", detail: "files from this message were already taken in" };
   const actor = humanActor(msg, binding.platform);
   const shipment = await caseForOpsMessage(svc, msg);
   const threadId = msg.thread_id ?? msg.message_id;
@@ -244,6 +255,7 @@ async function handleSupplierMessage(svc: Services, binding: RoomBinding, roomId
   const actor = humanActor(msg, binding.platform);
 
   if (msg.attachments.length) {
+    if (await alreadyIngested(svc, msg)) return { status: "IGNORED", detail: "files from this message were already taken in" };
     const { files, rejected } = await fetchAttachments(svc, roomId, msg.attachments, `${svc.config.REISSUE_PUBLIC_URL}/upload?case=${shipment.caseCode}`);
     const classification = await classifySupplierReply(msg.body, true, svc.replyModel);
     await recordSupplierReply(svc, shipment.id, { messageId: msg.message_id, roomId, threadId: msg.thread_id, sender: msg.sender, senderName: msg.sender_name, body: msg.body, intent: classification.intent, statedValue: classification.statedValue, attachmentCount: msg.attachments.length });

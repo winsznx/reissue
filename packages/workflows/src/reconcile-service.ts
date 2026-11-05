@@ -24,7 +24,7 @@ export interface ReconcileReport {
  * Persists checks and issue transitions, picks the next case state, and schedules the
  * follow-on work (agent review, supplier ask, packet) as post-commit jobs.
  */
-export async function runReconcile(svc: Services, shipmentId: string, epoch: number, reason: string): Promise<ReconcileReport> {
+export async function runReconcile(svc: Services, shipmentId: string, epoch: number, reason: string, trigger: string | null = null): Promise<ReconcileReport> {
   return withCase(svc, shipmentId, async (scope) => {
     const { tx } = scope;
     let shipment = scope.shipment;
@@ -35,6 +35,14 @@ export async function runReconcile(svc: Services, shipmentId: string, epoch: num
     const versions = await tx.select().from(schema.documentVersions).where(eq(schema.documentVersions.shipmentId, shipmentId));
     if (versions.some((v) => v.state === "RECEIVED" || v.state === "EXTRACTING")) return { ...report, skipped: "extraction pending" };
     if (versions.some((v) => v.state === "FAILED")) return { ...report, skipped: "extraction failed; case paused" };
+
+    if (trigger) {
+      const [done] = await tx
+        .select({ id: schema.validationRuns.id })
+        .from(schema.validationRuns)
+        .where(and(eq(schema.validationRuns.shipmentId, shipmentId), sql`${schema.validationRuns.results}->>'trigger' = ${trigger}`));
+      if (done) return { ...report, skipped: `trigger ${trigger} already reconciled` };
+    }
 
     const started = performance.now();
     const facts = await loadCurrentFacts(tx, shipmentId);
@@ -66,7 +74,7 @@ export async function runReconcile(svc: Services, shipmentId: string, epoch: num
       inputEpoch: epoch,
       inputVersionIds: facts.versionIds,
       testedFields: outcome.checks.length,
-      results: { summary: outcome.summary, ready: outcome.ready, issues: outcome.issues.map((i) => i.rootCauseKey), reason },
+      results: { summary: outcome.summary, ready: outcome.ready, issues: outcome.issues.map((i) => i.rootCauseKey), reason, trigger },
       modelId: null,
       timings: { reconcileMs },
     });
