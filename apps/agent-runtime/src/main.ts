@@ -207,16 +207,33 @@ async function handleSupplierMessage(roomId: string, msg: MessagePayload): Promi
   log.info({ case: caseId, intent: reply.intent, durationMs: run.durationMs, costUsd: run.costUsd }, "answered supplier");
 }
 
-let chain: Promise<void> = Promise.resolve();
+const CONCURRENCY = Math.max(1, Number(env("AGENT_CONCURRENCY") ?? 3));
+const inFlight = new Set<Promise<void>>();
+const waiting: (() => Promise<void>)[] = [];
 
-/** Work runs off the socket's delivery path so heartbeats are never blocked by a model turn. */
+function pump(): void {
+  while (inFlight.size < CONCURRENCY && waiting.length) {
+    const task = waiting.shift()!;
+    const run: Promise<void> = task().finally(() => {
+      inFlight.delete(run);
+      pump();
+    });
+    inFlight.add(run);
+  }
+}
+
+/**
+ * Work runs off the socket's delivery path so heartbeats are never blocked by a model turn, and
+ * up to AGENT_CONCURRENCY handoffs (default 3) run at once so one slow case does not hold up others.
+ */
 function onEvent(event: InboundEvent): Promise<void> {
   if (event.kind !== "message") return Promise.resolve();
   const msg = event.payload;
   if (!msg.addressed || msg.sender_name === name || processed.has(msg.message_id)) return Promise.resolve();
   const roomId = event.roomId;
-  chain = chain
-    .then(async () => {
+  processed.add(msg.message_id);
+  waiting.push(async () => {
+    try {
       await remember(msg.message_id);
       const decoded = decodeAgentPayload(msg.body);
       if (decoded.ok && decoded.payload.kind === "DOCUMENT_REVIEW_REQUESTED" && role === "examiner" && msg.sender_name === coordinatorName) {
@@ -226,8 +243,11 @@ function onEvent(event: InboundEvent): Promise<void> {
       } else if (role === "liaison" && roomId === supplierRoom && msg.sender_kind !== "agent") {
         await handleSupplierMessage(roomId, msg);
       }
-    })
-    .catch((error: unknown) => log.error({ err: error instanceof Error ? error.message : String(error), messageId: msg.message_id }, "handling failed"));
+    } catch (error) {
+      log.error({ err: error instanceof Error ? error.message : String(error), messageId: msg.message_id }, "handling failed");
+    }
+  });
+  pump();
   return Promise.resolve();
 }
 
@@ -257,7 +277,7 @@ log.info({ name, rooms }, `${role} runtime connected`);
 
 const shutdown = async () => {
   await Promise.all(connections.map((c) => c.stop()));
-  await chain;
+  await Promise.all(inFlight);
   process.exit(0);
 };
 process.on("SIGTERM", () => void shutdown());
