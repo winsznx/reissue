@@ -1,0 +1,22 @@
+{
+  "name": "@reissue/db",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": { ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" } },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint src",
+    "generate": "drizzle-kit generate",
+    "migrate": "node --env-file-if-exists=../../.env dist/migrate.js"
+  },
+  "dependencies": {
+    "@reissue/contracts": "workspace:*",
+    "drizzle-orm": "^0.45.4",
+    "postgres": "^3.4.7"
+  },
+  "devDependencies": { "drizzle-kit": "^0.31.11", "typescript": "^5.8.3" }
+}

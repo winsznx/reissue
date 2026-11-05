@@ -1,0 +1,9 @@
+{
+  "identities": [
+    {
+      "name": "reissue",
+      "credentials": [{ "accessKey": "reissue", "secretKey": "reissue-local-secret" }],
+      "actions": ["Admin", "Read", "Write", "List", "Tagging"]
+    }
+  ]
+}
