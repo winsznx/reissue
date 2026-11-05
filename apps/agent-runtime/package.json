@@ -1,0 +1,21 @@
+{
+  "name": "@reissue/agent-runtime",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/main.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "examiner": "tsx --env-file-if-exists=../../.env src/main.ts examiner",
+    "liaison": "tsx --env-file-if-exists=../../.env src/main.ts liaison",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint src"
+  },
+  "dependencies": {
+    "@reissue/contracts": "workspace:*",
+    "@reissue/switch-adapter": "workspace:*",
+    "pino": "^10.4.0",
+    "zod": "^4.3.4"
+  },
+  "devDependencies": { "tsx": "^4.20.0", "typescript": "^5.8.3" }
+}

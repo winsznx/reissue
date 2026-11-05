@@ -438,7 +438,7 @@ export const switchCursors = pgTable("switch_cursors", {
   connectionId: text("connection_id").notNull(),
   roomId: text("room_id").notNull(),
   cursor: bigint("cursor", { mode: "number" }),
-  generation: integer("generation"),
+  generation: bigint("generation", { mode: "number" }),
   serverVersion: text("server_version"),
   state: text("state").notNull(),
   lastConnectedAt: timestamp("last_connected_at", { withTimezone: true }),

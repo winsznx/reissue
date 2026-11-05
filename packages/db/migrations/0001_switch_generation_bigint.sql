@@ -1,0 +1,1 @@
+ALTER TABLE "switch_cursors" ALTER COLUMN "generation" SET DATA TYPE bigint;
