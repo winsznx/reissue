@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray, sql } from "drizzle-orm";
+import { and, desc, eq, gt, inArray, sql } from "drizzle-orm";
 
 import { encodeAgentPayload, type CheckResult, type DocumentReviewResult, type SupplierReplyIntent } from "@reissue/contracts";
 import { isIssueOpen, outboundDedupeKey } from "@reissue/core";
@@ -315,7 +315,7 @@ async function reminderEligible(scope: CaseScope, task: Task): Promise<Issue[] |
   const [reply] = await scope.tx
     .select({ id: schema.supplierMessages.id })
     .from(schema.supplierMessages)
-    .where(and(eq(schema.supplierMessages.shipmentId, scope.shipment.id), sql`${schema.supplierMessages.createdAt} > ${task.createdAt}`))
+    .where(and(eq(schema.supplierMessages.shipmentId, scope.shipment.id), gt(schema.supplierMessages.createdAt, task.createdAt)))
     .limit(1);
   return reply ? null : waiting;
 }
@@ -364,10 +364,11 @@ export async function escalate(svc: Services, shipmentId: string, taskId: string
   await withCase(svc, shipmentId, async (scope) => {
     const [task] = await scope.tx.select().from(schema.tasks).where(eq(schema.tasks.id, taskId));
     if (!task) return;
-    const issues = await reminderEligible(scope, task);
-    if (!issues) return;
+    const eligible = await reminderEligible(scope, task);
+    const issues = eligible?.filter((i) => i.status !== "ESCALATED") ?? [];
+    if (!issues.length) return;
     for (const issue of issues) {
-      if (issue.status !== "ESCALATED") await transitionIssue(scope.tx, issue, "ESCALATED", "no supplier response within the escalation threshold", undefined, { escalatedAt: new Date() });
+      await transitionIssue(scope.tx, issue, "ESCALATED", "no supplier response within the escalation threshold", undefined, { escalatedAt: new Date() });
     }
     const ops = await opsTarget(svc, scope.shipment);
     if (ops) {
