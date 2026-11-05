@@ -1,0 +1,26 @@
+{
+  "switchVersion": "0.31.0",
+  "recordedAt": "2026-11-05T01:11:52.518Z",
+  "runs": [
+    {
+      "run": 1,
+      "variant": "worker-restart",
+      "caseCode": "SHP-0253",
+      "timings": {
+        "chatToSwitchEventMs": 201,
+        "chatToAcknowledgementMs": 421,
+        "chatToDiscrepancyMs": 583,
+        "handoffToExaminerResultMs": 14241,
+        "chatToSupplierRequestMs": 15175,
+        "supplierReplyToCaseStateMs": 92,
+        "supplierReplyToLiaisonAnswerMs": 10501,
+        "replacementToRecheckMs": 152466,
+        "replacementToReadyMessageMs": 152677
+      },
+      "readyMessages": 1,
+      "packetPostId": "qhynjxa1b7fgtjcmuy8a3hyt5h",
+      "supplierRoomPosts": 6,
+      "participants": "scripted Mattermost accounts (operator: user, supplier: li.wei)"
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "switchVersion": "0.31.0",
+  "recordedAt": "2026-11-05T01:08:20.875Z",
+  "runs": [
+    {
+      "run": 1,
+      "variant": "clean",
+      "caseCode": "SHP-0249",
+      "timings": {
+        "chatToSwitchEventMs": 142,
+        "chatToAcknowledgementMs": 286,
+        "chatToDiscrepancyMs": 434,
+        "handoffToExaminerResultMs": 15569,
+        "chatToSupplierRequestMs": 16328,
+        "supplierReplyToCaseStateMs": 109,
+        "supplierReplyToLiaisonAnswerMs": 7065,
+        "replacementToRecheckMs": 236,
+        "replacementToReadyMessageMs": 400
+      },
+      "readyMessages": 1,
+      "packetPostId": "nikmhqssq789py3i3ah6em6tze",
+      "supplierRoomPosts": 6,
+      "participants": "scripted Mattermost accounts (operator: user, supplier: li.wei)"
+    },
+    {
+      "run": 2,
+      "variant": "clean",
+      "caseCode": "SHP-0250",
+      "timings": {
+        "chatToSwitchEventMs": 126,
+        "chatToAcknowledgementMs": 236,
+        "chatToDiscrepancyMs": 377,
+        "handoffToExaminerResultMs": 11708,
+        "chatToSupplierRequestMs": 12425,
+        "supplierReplyToCaseStateMs": 95,
+        "supplierReplyToLiaisonAnswerMs": 6955,
+        "replacementToRecheckMs": 241,
+        "replacementToReadyMessageMs": 400
+      },
+      "readyMessages": 1,
+      "packetPostId": "7nnwuh5pnjr5pqqrdmtphcs9ic",
+      "supplierRoomPosts": 6,
+      "participants": "scripted Mattermost accounts (operator: user, supplier: li.wei)"
+    },
+    {
+      "run": 3,
+      "variant": "clean",
+      "caseCode": "SHP-0251",
+      "timings": {
+        "chatToSwitchEventMs": 118,
+        "chatToAcknowledgementMs": 233,
+        "chatToDiscrepancyMs": 395,
+        "handoffToExaminerResultMs": 15550,
+        "chatToSupplierRequestMs": 16280,
+        "supplierReplyToCaseStateMs": 96,
+        "supplierReplyToLiaisonAnswerMs": 11148,
+        "replacementToRecheckMs": 267,
+        "replacementToReadyMessageMs": 430
+      },
+      "readyMessages": 1,
+      "packetPostId": "a1hj87gkctrdzx54r1skrkx3yw",
+      "supplierRoomPosts": 6,
+      "participants": "scripted Mattermost accounts (operator: user, supplier: li.wei)"
+    }
+  ]
+}
