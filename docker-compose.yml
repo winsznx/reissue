@@ -1,0 +1,61 @@
+name: reissue
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: reissue
+      POSTGRES_PASSWORD: reissue
+      POSTGRES_DB: reissue
+    ports: ["127.0.0.1:${REISSUE_POSTGRES_PORT:-5442}:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U reissue"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory-policy", "noeviction"]
+    ports: ["127.0.0.1:${REISSUE_REDIS_PORT:-6392}:6379"]
+    volumes: [redisdata:/data]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+
+  object-store:
+    image: chrislusf/seaweedfs:4.48
+    command: ["server", "-dir=/data", "-s3", "-s3.port=8333", "-s3.config=/etc/seaweedfs/s3.json", "-volume.max=0", "-master.volumeSizeLimitMB=256"]
+    ports: ["127.0.0.1:${REISSUE_S3_PORT:-9210}:8333"]
+    volumes:
+      - objectdata:/data
+      - ./infra/seaweedfs/s3.json:/etc/seaweedfs/s3.json:ro
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8333/healthz || exit 1"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+
+  document-worker:
+    build: ./apps/document-worker
+    environment:
+      MAX_UPLOAD_BYTES: "26214400"
+      EXTRACTION_MODEL_PROVIDER: ${EXTRACTION_MODEL_PROVIDER:-none}
+      EXTRACTION_MODEL: ${EXTRACTION_MODEL:-}
+      EXTRACTION_API_KEY: ${EXTRACTION_API_KEY:-}
+    ports: ["127.0.0.1:${REISSUE_WORKER_PORT:-4220}:4220"]
+    read_only: true
+    tmpfs: [/tmp]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:4220/health')"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  pgdata:
+  redisdata:
+  objectdata:
