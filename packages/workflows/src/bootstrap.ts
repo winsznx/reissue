@@ -3,6 +3,7 @@ import { createDb, type DbHandle } from "@reissue/db";
 import { SwitchClient } from "@reissue/switch-adapter";
 
 import { loadConfig } from "./config.js";
+import { loadCredentials } from "./switch-credentials.js";
 import { JobQueue, redisConnection } from "./queue.js";
 import { ensureTenant, seedRoomBindings } from "./rooms.js";
 import { createLogger, type Services } from "./services.js";
@@ -25,9 +26,9 @@ export async function createServices(name: string, env: NodeJS.ProcessEnv = proc
   const queue = new JobQueue(redisConnection(config.REDIS_URL), dbHandle.db);
   const tenant = await ensureTenant(dbHandle.db, config.REISSUE_TENANT_NAME);
   await seedRoomBindings(dbHandle.db, config, tenant.id);
-  const switchClient = config.switchEnabled
-    ? new SwitchClient({ baseUrl: config.SWITCH_BASE_URL!, agentId: config.SWITCH_COORDINATOR_AGENT_ID!, apiKey: config.SWITCH_COORDINATOR_AGENT_API_KEY! })
-    : null;
+  const creds = await loadCredentials();
+  if (creds) config.switchEnabled = true;
+  const switchClient = creds ? new SwitchClient({ baseUrl: creds.baseUrl, agentId: creds.agentId, apiKey: creds.apiKey }) : null;
   const replyModel =
     config.REPLY_CLASSIFIER_PROVIDER === "anthropic" && config.EXTRACTION_API_KEY
       ? anthropicReplyModel(config.EXTRACTION_API_KEY, config.EXTRACTION_MODEL ?? "claude-haiku-5-5")
