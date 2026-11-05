@@ -17,7 +17,7 @@ ALL=(worker-docs api worker coordinator examiner liaison web)
 
 command_for() {
   case "$1" in
-    worker-docs) echo "cd $ROOT/apps/document-worker && exec uv run uvicorn reissue_worker.api:app --host 127.0.0.1 --port 4220" ;;
+    worker-docs) echo "cd $ROOT/apps/document-worker && exec uv run --env-file $ROOT/.env uvicorn reissue_worker.api:app --host 127.0.0.1 --port 4220" ;;
     api) echo "cd $ROOT/apps/api && exec npx tsx --env-file=$ROOT/.env src/main.ts" ;;
     worker) echo "cd $ROOT/apps/worker && exec npx tsx --env-file=$ROOT/.env src/main.ts" ;;
     coordinator) echo "cd $ROOT/apps/switch-coordinator && exec npx tsx --env-file=$ROOT/.env src/main.ts" ;;
