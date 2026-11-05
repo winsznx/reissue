@@ -20,7 +20,6 @@ import type {
   ConversionFactor,
   DocType,
   DocumentState,
-  ExtractedField,
   FieldPath,
   IssueKind,
   IssueState,
