@@ -7,7 +7,8 @@
     "test": "vitest run --project integration",
     "test:integration": "vitest run --project integration",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "lint": "eslint integration support"
+    "lint": "eslint integration support",
+    "live:switch": "tsx --env-file-if-exists=../.env end-to-end/live-switch.ts"
   },
   "dependencies": {
     "@reissue/api": "workspace:*",
@@ -20,5 +21,9 @@
     "drizzle-orm": "^0.45.4",
     "postgres": "^3.4.7"
   },
-  "devDependencies": { "typescript": "^5.8.3", "vitest": "^4.0.0" }
+  "devDependencies": {
+    "typescript": "^5.8.3",
+    "vitest": "^4.0.0",
+    "tsx": "^4.20.0"
+  }
 }

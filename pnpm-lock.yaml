@@ -169,15 +169,33 @@ importers:
       '@eslint/js':
         specifier: ^10.0.1
         version: 10.0.1(eslint@10.14.0(jiti@2.7.0))
+      '@reissue/artifacts':
+        specifier: workspace:*
+        version: link:packages/artifacts
+      '@reissue/switch-adapter':
+        specifier: workspace:*
+        version: link:packages/switch-adapter
+      '@reissue/workflows':
+        specifier: workspace:*
+        version: link:packages/workflows
       '@types/node':
         specifier: ^24.19.2
         version: 24.19.2
+      '@types/yauzl':
+        specifier: ^3.4.0
+        version: 3.4.0
       eslint:
         specifier: ^10.14.0
         version: 10.14.0(jiti@2.7.0)
       globals:
         specifier: ^17.14.0
         version: 17.14.0
+      postgres:
+        specifier: ^3.4.9
+        version: 3.4.9
+      tsx:
+        specifier: ^4.20.0
+        version: 4.23.15
       turbo:
         specifier: ^2.5.0
         version: 2.11.10
@@ -187,6 +205,9 @@ importers:
       typescript-eslint:
         specifier: ^8.72.1
         version: 8.72.1(eslint@10.14.0(jiti@2.7.0))(typescript@5.9.3)
+      yauzl:
+        specifier: ^3.4.0
+        version: 3.4.0
 
   apps/agent-runtime:
     dependencies:
@@ -553,6 +574,9 @@ importers:
         specifier: ^3.4.7
         version: 3.4.9
     devDependencies:
+      tsx:
+        specifier: ^4.20.0
+        version: 4.23.15
       typescript:
         specifier: ^5.8.3
         version: 5.9.3
@@ -1878,6 +1902,9 @@ packages:
 
   '@types/yauzl@2.10.3':
     resolution: {integrity: sha512-oJoftv0LSuaDZE3Le4DbKX+KS9G36NzOeSap90UIK0yMA/NhKJhqlSGtNDORNRaIbQfzjXDrQa0ytJ6mNRGz/Q==}
+
+  '@types/yauzl@3.4.0':
+    resolution: {integrity: sha512-NRPn5w6h8dhcnmx3YIRQcqMywY/+nND/uOkJessedcrowO3C0AssHp3tMJpxKAwOhFOo0OV1y9VtsC5hbKKBAw==}
 
   '@types/yazl@3.3.1':
     resolution: {integrity: sha512-DIWfCKpsTp6hE5BDBHV3+fIL/bLUF9Bv13iDrWnMlmhQpH67buNvI291ZauQ1xcccxK3FqQ9honnXpq4R8NMuQ==}
@@ -4472,6 +4499,10 @@ snapshots:
       '@types/node': 24.19.2
 
   '@types/yauzl@2.10.3':
+    dependencies:
+      '@types/node': 24.19.2
+
+  '@types/yauzl@3.4.0':
     dependencies:
       '@types/node': 24.19.2
 

@@ -15,15 +15,30 @@
     "infra:up": "docker compose up -d --wait",
     "infra:down": "docker compose down",
     "db:generate": "pnpm --filter @reissue/db generate",
-    "db:migrate": "pnpm --filter @reissue/db migrate"
+    "db:migrate": "pnpm --filter @reissue/db migrate",
+    "bootstrap": "scripts/bootstrap.sh",
+    "stack": "scripts/stack.sh",
+    "verify:switch": "tsx --env-file-if-exists=.env scripts/verify-switch.ts",
+    "verify:packet": "tsx scripts/verify-packet.ts",
+    "scenario": "tsx --env-file-if-exists=.env scripts/run-scenario.ts",
+    "samples:fetch": "tsx scripts/fetch-public-samples.ts",
+    "test:integration": "pnpm --filter @reissue/tests test:integration",
+    "test:live": "pnpm --filter @reissue/tests live:switch --runs 1"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@reissue/artifacts": "workspace:*",
+    "@reissue/switch-adapter": "workspace:*",
+    "@reissue/workflows": "workspace:*",
     "@types/node": "^24.19.2",
+    "@types/yauzl": "^3.4.0",
     "eslint": "^10.14.0",
     "globals": "^17.14.0",
+    "postgres": "^3.4.9",
+    "tsx": "^4.20.0",
     "turbo": "^2.5.0",
     "typescript": "^5.8.3",
-    "typescript-eslint": "^8.72.1"
+    "typescript-eslint": "^8.72.1",
+    "yauzl": "^3.4.0"
   }
 }
