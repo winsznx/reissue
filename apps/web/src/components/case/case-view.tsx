@@ -36,6 +36,8 @@ export function CaseView({ code }: { code: string }) {
   const latestChecks = useRef<CheckResult[] | undefined>(undefined);
   const refreshTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const resolveTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const latestSequence = useRef(0);
+  const [appliedSequence, setAppliedSequence] = useState(0);
 
   useEffect(() => {
     latestChecks.current = detail?.checks;
@@ -53,8 +55,10 @@ export function CaseView({ code }: { code: string }) {
     clearTimeout(refreshTimer.current);
     refreshTimer.current = setTimeout(() => {
       const before = latestChecks.current;
+      const upTo = latestSequence.current;
       mutate()
         .then((next) => {
+          setAppliedSequence((current) => Math.max(current, upTo));
           const keys = next ? newlyResolved(before, next.checks) : [];
           if (!keys.length) return;
           setResolving(new Set(keys));
@@ -65,7 +69,11 @@ export function CaseView({ code }: { code: string }) {
     }, REFRESH_DEBOUNCE_MS);
   }, [mutate]);
 
-  const { events, status } = useCaseStream(code, refresh);
+  const { events: streamed, status } = useCaseStream(code, refresh);
+  useEffect(() => {
+    latestSequence.current = streamed.reduce((max, e) => Math.max(max, e.sequence), latestSequence.current);
+  }, [streamed]);
+  const events = useMemo(() => streamed.filter((e) => e.sequence <= appliedSequence), [streamed, appliedSequence]);
 
   const selectCheck = useCallback((key: string) => {
     setSelection((s) => ({ key, token: s.token + 1 }));

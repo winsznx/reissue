@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   agentRules: false,
+  devIndicators: false,
   async rewrites() {
     return [{ source: "/api/:path*", destination: `${apiBase}/:path*` }];
   },
