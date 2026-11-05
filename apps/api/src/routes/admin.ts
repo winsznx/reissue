@@ -6,7 +6,7 @@ import { and, desc, eq, gt, inArray } from "drizzle-orm";
 import { RoomBindingsPatch, type HealthDto, type RoomBindingDto } from "@reissue/contracts";
 import { newId, schema } from "@reissue/db";
 import { switchHealth } from "@reissue/switch-adapter";
-import { issueDownloadToken, listBindings } from "@reissue/workflows";
+import { applyRetention, issueDownloadToken, listBindings } from "@reissue/workflows";
 
 import type { AppContext } from "../context.js";
 import { HttpError, notFound, parse } from "../errors.js";
@@ -149,7 +149,7 @@ export function adminRoutes(app: FastifyInstance, ctx: AppContext): void {
       },
       extraction: { provider: svc.config.EXTRACTION_MODEL_PROVIDER ?? "deterministic (no model)", model: svc.config.EXTRACTION_MODEL },
       replyClassifier: svc.replyModel ? svc.replyModel.id : "rules",
-      fileRetentionDays: tenant?.settings.fileRetentionDays ?? 365,
+      fileRetention: { days: svc.config.FILE_RETENTION_DAYS, enforced: svc.config.RETENTION_ENFORCE },
       limits: { maxUploadBytes: svc.config.MAX_UPLOAD_BYTES, chatMediaMaxBytes: svc.config.SWITCH_MEDIA_MAX_BYTES },
     };
   });
@@ -192,6 +192,11 @@ export function adminRoutes(app: FastifyInstance, ctx: AppContext): void {
       },
     };
     return health;
+  });
+
+  app.post<{ Body: { dryRun?: boolean } }>("/v1/admin/retention", async (request) => {
+    const dryRun = request.body?.dryRun !== false || !svc.config.RETENTION_ENFORCE;
+    return applyRetention(svc, { dryRun });
   });
 
   app.get<{ Querystring: { status?: string } }>("/v1/jobs", async (request) => {

@@ -133,6 +133,15 @@ describe("document intelligence on varied inputs", () => {
     expect((await issues(svc, id)).map((i) => i.kind)).toEqual(["QUANTITY_MISMATCH"]);
   });
 
+  it("accepts an XLSX packing list and a PNG scan as source documents (FR-01)", async () => {
+    const xlsx = await openCase(svc, ["invoice-v1.pdf", "packing-list.xlsx"]);
+    expect((await issues(svc, xlsx)).map((i) => i.kind)).toEqual(["QUANTITY_MISMATCH"]);
+    const png = await openCase(svc, ["invoice-v1.pdf", "scanned-packing-list.png"]);
+    expect((await issues(svc, png)).map((i) => i.kind)).toEqual(["QUANTITY_MISMATCH"]);
+    const versions = await svc.db.select().from(schema.documentVersions).where(eq(schema.documentVersions.shipmentId, png));
+    expect(versions.map((v) => v.mime).sort()).toEqual(["application/pdf", "image/png"]);
+  });
+
   it("classifies by content when the filename misleads", async () => {
     const id = await openCase(svc, ["invoice-v1.pdf", "commercial-invoice-final.pdf"]);
     const docs = await svc.db.select().from(schema.documents).where(eq(schema.documents.shipmentId, id));
