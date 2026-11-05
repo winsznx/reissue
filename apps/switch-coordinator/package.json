@@ -11,7 +11,8 @@
     "register": "tsx --env-file-if-exists=../../.env src/register.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint src",
-    "setup:local": "tsx --env-file-if-exists=../../.env src/setup-local.ts"
+    "setup:local": "tsx --env-file-if-exists=../../.env src/setup-local.ts",
+    "connect-rooms": "tsx --env-file-if-exists=../../.env src/connect-rooms.ts"
   },
   "dependencies": {
     "@reissue/contracts": "workspace:*",
