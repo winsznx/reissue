@@ -11,6 +11,8 @@ export interface DbHandle {
   db: Database;
   close: () => Promise<void>;
   ping: () => Promise<number>;
+  /** LISTEN on a Postgres channel; resolves to an unlisten function. */
+  listen: (channel: string, onPayload: (payload: string) => void) => Promise<() => Promise<void>>;
 }
 
 export function createDb(url: string, options: { max?: number } = {}): DbHandle {
@@ -23,6 +25,10 @@ export function createDb(url: string, options: { max?: number } = {}): DbHandle 
       const started = performance.now();
       await sql`select 1`;
       return performance.now() - started;
+    },
+    listen: async (channel, onPayload) => {
+      const meta = await sql.listen(channel, onPayload);
+      return () => meta.unlisten();
     },
   };
 }

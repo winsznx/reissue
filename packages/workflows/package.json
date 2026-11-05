@@ -1,0 +1,30 @@
+{
+  "name": "@reissue/workflows",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": { ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" } },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json --noEmit",
+    "test": "vitest run",
+    "lint": "eslint src test"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.1162.0",
+    "@reissue/ai": "workspace:*",
+    "@reissue/artifacts": "workspace:*",
+    "@reissue/contracts": "workspace:*",
+    "@reissue/core": "workspace:*",
+    "@reissue/db": "workspace:*",
+    "@reissue/switch-adapter": "workspace:*",
+    "bullmq": "^5.56.0",
+    "drizzle-orm": "^0.45.4",
+    "ioredis": "^5.6.1",
+    "pino": "^10.4.0",
+    "zod": "^4.3.4"
+  },
+  "devDependencies": { "typescript": "^5.8.3", "vitest": "^4.0.0" }
+}
