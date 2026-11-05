@@ -1,0 +1,33 @@
+{
+  "name": "@reissue/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/main.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsx watch --env-file-if-exists=../../.env src/main.ts",
+    "start": "node --env-file-if-exists=../../.env dist/main.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json --noEmit",
+    "test": "vitest run",
+    "lint": "eslint src test"
+  },
+  "dependencies": {
+    "@fastify/cookie": "^11.0.2",
+    "@fastify/cors": "^11.1.0",
+    "@fastify/multipart": "^9.0.3",
+    "@fastify/rate-limit": "^10.3.0",
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "@reissue/ai": "workspace:*",
+    "@reissue/contracts": "workspace:*",
+    "@reissue/core": "workspace:*",
+    "@reissue/db": "workspace:*",
+    "@reissue/switch-adapter": "workspace:*",
+    "@reissue/workflows": "workspace:*",
+    "drizzle-orm": "^0.45.4",
+    "fastify": "^5.6.0",
+    "postgres": "^3.4.7",
+    "zod": "^4.3.4"
+  },
+  "devDependencies": { "tsx": "^4.20.0", "typescript": "^5.8.3", "vitest": "^4.0.0" }
+}
