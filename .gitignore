@@ -1,0 +1,28 @@
+/internal/
+.DS_Store
+
+# dependencies
+node_modules/
+.pnpm-store/
+.venv/
+__pycache__/
+*.pyc
+
+# builds
+.next/
+dist/
+build/
+.turbo/
+*.tsbuildinfo
+coverage/
+playwright-report/
+test-results/
+
+# local state and secrets
+.env
+.env.*
+!.env.example
+.data/
+*.pem
+*.key
+/var/
