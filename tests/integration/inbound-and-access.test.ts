@@ -184,3 +184,15 @@ describe("API access boundaries (E2E-15)", () => {
     await server.close();
   });
 });
+
+describe("files the chat app dropped", () => {
+  it("offers the secure upload link when a supplier says a file is attached but none arrived", async () => {
+    const id = await openCase(svc, ["invoice-v1.pdf", "packing-list-v1.pdf"]);
+    await svc.db.update(schema.shipments).set({ supplierThreadId: "thread-req-big" }).where(eq(schema.shipments.id, id));
+    const eventId = await deliver(SUPPLIER_ROOM, message({ thread_id: "thread-req-big", body: "full scan attached" }));
+    await processInboundEvent(svc, eventId);
+    const sent = (await outbox(svc, id)).filter((o) => o.dedupeKey.startsWith("missing_file:"));
+    expect(sent).toHaveLength(1);
+    expect(sent[0]!.content.kind === "post" && sent[0]!.content.body).toMatch(/\/upload\?case=SHP-\d+/);
+  });
+});

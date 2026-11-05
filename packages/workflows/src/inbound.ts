@@ -17,6 +17,9 @@ import { queueMessage, type Services } from "./services.js";
 type SwitchEventRow = typeof schema.switchEvents.$inferSelect;
 type Outcome = { status: "PROCESSED" | "IGNORED"; detail: string };
 
+/** Text that says a file is attached; used to notice when the chat app dropped it. */
+const CLAIMS_ATTACHMENT = /\b(attached|attaching|enclosed|herewith|see (the )?(file|pdf|scan))\b/i;
+
 const ACTIVE_STATES = ["RECEIVED", "PARSING", "RECONCILING", "NEEDS_CLARIFICATION", "WAITING_ON_SUPPLIER", "RECHECKING", "ERROR_RECOVERABLE"] as const;
 
 /** Processes one persisted Switch event. Idempotent: a processed event is never acted on twice. */
@@ -293,6 +296,17 @@ async function handleSupplierMessage(svc: Services, binding: RoomBinding, roomId
     return { status: "PROCESSED", detail: `replacement intake ${result.intakeId}` };
   }
 
+  if (CLAIMS_ATTACHMENT.test(msg.body)) {
+    await reply(
+      svc,
+      shipment.id,
+      roomId,
+      threadId,
+      `Reissue · ${shipment.caseCode} — no file came through with that message. Chat apps drop files over ${svc.config.SWITCH_MEDIA_MAX_BYTES / 1048576} MB; if it is larger, upload it here instead: ${svc.config.REISSUE_PUBLIC_URL}/upload?case=${shipment.caseCode}`,
+      `missing_file:${msg.message_id}`,
+      "supplier",
+    );
+  }
   const classification = await classifySupplierReply(msg.body, false, svc.replyModel);
   await recordSupplierReply(svc, shipment.id, { messageId: msg.message_id, roomId, threadId: msg.thread_id, sender: msg.sender, senderName: msg.sender_name, body: msg.body, intent: classification.intent, statedValue: classification.statedValue, attachmentCount: 0 });
   const conversion = parseConversionStatement(msg.body);
