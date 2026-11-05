@@ -1,0 +1,101 @@
+{
+  "note": "Public sample documents fetched at build time by scripts/fetch-public-samples.ts and checked against these SHA-256 values. They are not redistributed in this repository; each stays under its publisher's terms.",
+  "samples": [
+    {
+      "id": "flexport-ci-annotated-sample",
+      "docType": "COMMERCIAL_INVOICE",
+      "title": "Flexport sample commercial invoice with legend (Foot Accessory Manufacturing Inc to Sock Importing Company, Inc)",
+      "url": "https://public-endpoints.flexport.com/documents/b4f37dce-431b-448c-a37c-916cce23c627/download?token=undefined",
+      "sourcePage": "https://www.flexport.com/help/72-commercial-invoice-example",
+      "sha256": "db2306139a977fabcce3e00e706a63b66c5e0a6c10a573549355d95de6c5c8cb",
+      "sizeBytes": 95700,
+      "contentNotes": "FILLED example, 1 page, digital text layer. Supplier Foot Accessory Manufacturing Inc (Shenzhen, China), importer of record Sock Importing Company, Inc (Los Angeles). Invoice No. FP123456 dated 5/16/16. 3 line items with PO#, SKU, description, material content, quantity (pieces), unit value USD, total: 1111123/AB1234 women's ankle socks 250 x $2.00 = $500.00; 1111124/BC2345 clothes hangers 300 x $2.15 = $645.00; 1111125/CD3456 yarn 150 x $2.22 = $333.00; total USD $1,478.00; country of origin China. Numbered callouts 1-9 overlaid on the form plus a 'Guide to commercial invoice items' legend at the bottom, so the text extract contains stray digits. No weights, no HS codes, no incoterm. URL 302-redirects to a presigned S3 URL, so fetch the public-endpoints URL with redirects followed (curl -L) and do not pin the S3 URL. pdfinfo logs a recoverable 'xref num 3 not found' warning.",
+      "license": "unstated for the file; site Terms of Use (https://www.flexport.com/terms-and-conditions/terms-of-use/) prohibit copying/redistributing content without a separate license",
+      "redistributable": false
+    },
+    {
+      "id": "flexport-pl-blank",
+      "docType": "PACKING_LIST",
+      "title": "Flexport blank packing list template (PDF)",
+      "url": "https://public-endpoints.flexport.com/documents/c9a35c2f-8e64-45a0-be9f-8b110257f54c/download?token=undefined",
+      "sourcePage": "https://www.flexport.com/help/packing-list-template-blank/",
+      "sha256": "deebd0d5ae6f89ce02e61cd4266b55909ccfaf9f6a84ee326b3fa40f0e4c1031",
+      "sizeBytes": 36944,
+      "contentNotes": "BLANK template, 1 page, digital text layer. Header fields Packing List#, Loading Date, Customer PO#, Shipping Mark; Supplier and Consignee blocks (company, address, city, country, attn, phone); line columns SKU, product description, product quantity (pieces), per-carton product dimensions/gross weight, carton dimensions, carton net/gross weight, carton quantity, totals for product quantity, net weight, gross weight, CBM; special instructions; supplier stamp/signature. Same publisher and SKU/PO column vocabulary as the Flexport commercial invoice sample, but no line data. Redirects to presigned S3 like the other Flexport links.",
+      "license": "unstated for the file; site Terms of Use prohibit copying/redistributing content without a separate license",
+      "redistributable": false
+    },
+    {
+      "id": "flexport-ci-blank",
+      "docType": "COMMERCIAL_INVOICE",
+      "title": "Flexport blank commercial invoice template (PDF)",
+      "url": "https://public-endpoints.flexport.com/documents/b31fab94-fa30-4c60-92bd-3fc2665a857a/download?token=undefined",
+      "sourcePage": "https://www.flexport.com/help/commercial-invoice-template/",
+      "sha256": "c11efb699d08990496619ad94de4ec008d349386c675013c29c84125086c40e7",
+      "sizeBytes": 30739,
+      "contentNotes": "BLANK template, digital text layer. Invoice number/date, supplier and importer-of-record blocks, line columns PO #, SKU, product description, material content, quantity (pieces), unit value USD, total value USD, total value of all goods, country of origin. Same layout as the filled Flexport sample minus the legend.",
+      "license": "unstated for the file; site Terms of Use prohibit copying/redistributing content without a separate license",
+      "redistributable": false
+    },
+    {
+      "id": "gls-be-example-invoice-statement-on-origin",
+      "docType": "COMMERCIAL_INVOICE",
+      "title": "GLS Belgium example invoice + summary + statement on origin (EU to UK export)",
+      "url": "https://gls-group.com/BE/media/downloads/Example_Invoice__Statement_on_Origin~1.pdf",
+      "sourcePage": "https://gls-group.com/BE/en/shipping/regular-shipment/export-guideline/",
+      "sha256": "6bce511752ac0f89bac1ab5c2a857f9c0da3eaa1586a4a496a13e2ee068bbe7c",
+      "sizeBytes": 484049,
+      "contentNotes": "FILLED example with placeholder parties ('Name Shipper/Exporter', 'Name Importer'), 3 pages, Word-generated digital text. Page 1: Invoice N\u00b012345 dated 01/01/2020, order 'Your N\u00b0 999999', ship date 05/01/2020, delivery to United Kingdom; 3 lines with item ref, 8-digit HS code, description, origin, quantity, net kg, gross kg, unit price, total, currency: 42021299 synthetic trunk CN 2 / 2.000 / 2.500 / 10.00 / 20.00 GBP; 42029291 backpack PK 1 / 0.500 / 0.800 / 6.00; 42029291 backpack CN 1 / 0.400 / 0.800 / 5.00; totals 4 pcs, net 2.900 kg, gross 4.100 kg, 31.00 GBP + freight 10.00 + insurance 2.00 = 43.00 GBP; incoterm DAP; 1 carton; footnotes 1-8. Page 2: multi-invoice summary table, which swaps the net and gross columns for N\u00b012345 (net 4.100, gross 2.900) and prints '43 .00', a real internal inconsistency useful as a reconciliation test case. Page 3: blank EU-UK TCA statement on origin text. 'LOGO' placeholder image. Carries a GLS non-binding/no-liability disclaimer. Also served byte-identical at https://assistantapi.gls-group.eu/BE/media/downloads/Example_Invoice__Statement_on_Origin~1.pdf.",
+      "license": "unstated",
+      "redistributable": "unknown"
+    },
+    {
+      "id": "cleverence-packing-list-example",
+      "docType": "PACKING_LIST",
+      "title": "Cleverence packing list template (worked example page 1, blank page 2)",
+      "url": "https://www.cleverence.com/inventory/files/packing-list-template/packing-list-template.pdf",
+      "sourcePage": "https://www.cleverence.com/inventory/templates/packing-list-template/",
+      "sha256": "496f3f145a8c9a4469d673f61eb1361ab0bfcda7c14ae2b8a6294b4b8e293294",
+      "sizeBytes": 139538,
+      "contentNotes": "Page 1 FILLED ('Example - an invented order'), page 2 BLANK. 2 pages, Chromium/Skia digital text. Domestic warehouse packing list, not an export document: shipment SHP-24118-1, PO PH-55102, ship from Larkfield Supply to Pellham Hardware, carrier Larkway Parcels, tracking LP 4471 0926 31, 2 cartons, total gross 11.8 kg. Lines with carton, SKU, description, GTIN, UOM, qty ordered/in carton/shipped/backordered: CH-128-MB cabinet handle 12/12/12/0; SB-200-GV shelf bracket 10/8/8/2 (backorder); BH-63-BR brass hinge 2 pair. Carton table: 1 of 2 4.6 kg 40x30x25 cm; 2 of 2 7.2 kg 60x40x15 cm. No values, no HS codes, no net weights. No matching invoice published.",
+      "license": "unstated (page says 'Free, no sign-up'; no redistribution terms)",
+      "redistributable": "unknown"
+    },
+    {
+      "id": "cbsa-ci1-canada-customs-invoice",
+      "docType": "COMMERCIAL_INVOICE",
+      "title": "Canada Border Services Agency form CI1, Canada Customs Invoice (bilingual)",
+      "url": "https://www.cbsa-asfc.gc.ca/publications/forms-formulaires/ci1.pdf",
+      "sourcePage": "https://www.cbsa-asfc.gc.ca/publications/forms-formulaires/ci1-eng.html",
+      "sha256": "6c3697085c92dd12ae03b513849ccec3dbf4f2685e077c232cc2155f45fd65bd",
+      "sizeBytes": 439749,
+      "contentNotes": "BLANK government form, 1 page, digital text, AcroForm fillable, English/French. Fields 1-25: vendor, date of direct shipment, references/PO, consignee, purchaser, country of transhipment, country of origin, transportation, conditions of sale, currency, number of packages, specification of commodities, quantity, unit price, total, total net/gross weight, invoice total, exporter, originator, agency ruling, transport/commission/royalty adjustments. A customs invoice used in lieu of or alongside a commercial invoice for Canadian imports.",
+      "license": "unstated on the form; Government of Canada (Crown copyright) content governed by the CBSA/canada.ca Terms and conditions page, not checked here",
+      "redistributable": "unknown"
+    },
+    {
+      "id": "jse-shubil-1994a-sample",
+      "docType": "BILL_OF_LADING",
+      "title": "Japan Shipping Exchange SHUBIL-1994(A) bill of lading sample form",
+      "url": "https://www.jseinc.org/document/bl/shubil(a)sample.pdf",
+      "sourcePage": "unknown (direct PDF on jseinc.org; listing page not reachable, site returns 403 for HTML pages)",
+      "sha256": "2b4cb62dfcf95ed24353a1a91ca7c246096d36cf19e31ebb1f4cbdd63b93fc8b",
+      "sizeBytes": 36832,
+      "contentNotes": "BLANK standard form stamped 'SAMPLE', 3 pages (face plus back terms), digital text. Fields shipper, consignee, notify party, B/L No., local/ocean vessel, voyage no., ports of loading/discharge, final destination, marks/numbers, no. of packages, description of goods, gross weight, measurement, declared value, freight & charges (revenue tons, rate, prepaid/collect). URL contains parentheses, so percent-encode or quote when fetching.",
+      "license": "unstated; published standard form of The Japan Shipping Exchange, Inc.",
+      "redistributable": "unknown"
+    },
+    {
+      "id": "sea-cargo-bl-2017",
+      "docType": "BILL_OF_LADING",
+      "title": "Sea-Cargo A/S bill of lading 2017 v2 (specimen)",
+      "url": "https://sea-cargo.no/wp-content/uploads/2018/01/Bill-of-Lading-2017-v2.pdf",
+      "sourcePage": "unknown (direct PDF on sea-cargo.no found via web search)",
+      "sha256": "ad5d3a12797e83d15a233049f98d1d922fffefa10a81b5aaea5b290e6a8a92b3",
+      "sizeBytes": 689252,
+      "contentNotes": "BLANK carrier form with a diagonal 'SAMPLE ... NOT VALID FOR USE' style watermark whose letters scatter through the text extract, 2 pages (face plus terms), digital text. Fields shipper, consignee, notify party, pre-carriage, vessel, place of receipt, port of loading/discharge, place of delivery, marks and nos., description/packaging, gross weight kg, cube m3, freight payable at, place/date of issue, number of originals. Real carrier letterhead (Sea-Cargo A/S, Bergen).",
+      "license": "unstated",
+      "redistributable": "unknown"
+    }
+  ]
+}
