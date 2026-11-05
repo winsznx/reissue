@@ -1,0 +1,163 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+:root {
+  --canvas: #f7f6f2;
+  --surface: #ffffff;
+  --sunken: #efede7;
+  --line: #e2dfd6;
+  --line-strong: #c8c4b8;
+  --ink: #182020;
+  --ink-2: #5f6965;
+  --accent: #3457e8;
+  --accent-ink: #ffffff;
+  --accent-soft: #e6ebfd;
+  --warn: #b96a32;
+  --warn-ink: #8c4c1c;
+  --warn-soft: #f6e9de;
+  --ok: #24755f;
+  --ok-ink: #1d6150;
+  --ok-soft: #e1f0ea;
+  --danger: #b4322f;
+  --danger-soft: #f8e4e2;
+  --paper: #ffffff;
+  --focus: #3457e8;
+  --shadow-doc: 0 1px 2px rgb(24 32 32 / 0.06), 0 8px 24px -12px rgb(24 32 32 / 0.18);
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --canvas: #14191b;
+  --surface: #202729;
+  --sunken: #181e20;
+  --line: #2f383b;
+  --line-strong: #46524f;
+  --ink: #e7ebe8;
+  --ink-2: #9ca7a3;
+  --accent: #7b93ff;
+  --accent-ink: #0d1430;
+  --accent-soft: #232d52;
+  --warn: #d4884f;
+  --warn-ink: #e7a372;
+  --warn-soft: #3a2a1e;
+  --ok: #4fb394;
+  --ok-ink: #6cc7aa;
+  --ok-soft: #183229;
+  --danger: #e46f69;
+  --danger-soft: #3b1f1e;
+  --paper: #f4f2ec;
+  --focus: #9fb1ff;
+  --shadow-doc: 0 1px 2px rgb(0 0 0 / 0.4), 0 10px 28px -12px rgb(0 0 0 / 0.6);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-sunken: var(--sunken);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+  --color-warn: var(--warn);
+  --color-warn-ink: var(--warn-ink);
+  --color-warn-soft: var(--warn-soft);
+  --color-ok: var(--ok);
+  --color-ok-ink: var(--ok-ink);
+  --color-ok-soft: var(--ok-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-paper: var(--paper);
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-newsreader), ui-serif, Georgia, serif;
+  --radius-panel: 10px;
+  --radius-mark: 6px;
+  --shadow-doc: var(--shadow-doc);
+}
+
+html {
+  background: var(--canvas);
+  color: var(--ink);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  line-height: 1.45;
+  font-feature-settings: "ss01", "cv11";
+  text-rendering: optimizeLegibility;
+}
+
+.tnum {
+  font-variant-numeric: tabular-nums slashed-zero;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+::selection {
+  background: var(--accent-soft);
+}
+
+@keyframes mark-resolve {
+  0% {
+    background-color: rgb(185 106 50 / 0.28);
+    border-color: var(--warn);
+  }
+  100% {
+    background-color: rgb(36 117 95 / 0.16);
+    border-color: var(--ok);
+  }
+}
+
+@keyframes mark-focus {
+  0% {
+    box-shadow: 0 0 0 0 rgb(52 87 232 / 0.45);
+  }
+  100% {
+    box-shadow: 0 0 0 8px rgb(52 87 232 / 0);
+  }
+}
+
+@keyframes live-dot {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.mark-resolving {
+  animation: mark-resolve 1.2s ease-out both;
+}
+
+.mark-focused {
+  animation: mark-focus 240ms ease-out;
+}
+
+.live-dot {
+  animation: live-dot 2.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
