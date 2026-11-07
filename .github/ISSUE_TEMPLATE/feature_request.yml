@@ -1,0 +1,17 @@
+name: Feature request
+description: A document type, check, chat app or workflow Reissue should handle
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: The paperwork situation you run into, with a real (redacted) example if you can.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What Reissue should do
+    validations:
+      required: true
