@@ -48,9 +48,10 @@ Dana: @reissue check these  ──files──▶  reissue (coordinator)
     02-packing-list-v2.pdf   correction-summary.pdf   document-index.csv
 ```
 
-Each arrow above is a real Switch message. In the local verification setup the two chats are
-Mattermost rooms on a self-hosted Switch 0.31.0 server, and the same code binds to Slack and
-Telegram (see [switch/setup.md](switch/setup.md)).
+Each arrow above is a real Switch message. The loop has run on real Slack and Telegram accounts
+through a self-hosted Switch 0.31.0 server. On 2026-11-07, case SHP-0287 went from the supplier's
+revised PDF in Telegram to the ZIP in the Slack thread in 0.75 s. The scripted test runs use
+Mattermost rooms on the same server (see [switch/setup.md](switch/setup.md)).
 
 ## What's in the box
 
@@ -109,15 +110,16 @@ and liaison call `claude`, so Claude Code needs to be installed and signed in.
 
 ### With Slack and Telegram
 
-Follow [switch/setup.md](switch/setup.md), path B. The Telegram group has to be created by hand,
-because bots can't create groups. Then `pnpm --filter @reissue/switch-coordinator connect-rooms`
-binds the rooms.
+Follow [switch/setup.md](switch/setup.md), path B, either in Switch Console or straight through
+the gateway API on the local server. The Telegram group has to be created by hand, because bots
+can't create groups. Then `pnpm --filter @reissue/switch-coordinator connect-rooms` binds the
+rooms.
 
 ## Tests
 
 ```bash
 pnpm test                 # unit tests: reconciler, adapter, artifacts, classifier, document worker
-pnpm test:integration     # 35 tests on real Postgres, Redis, S3 and the document worker
+pnpm test:integration     # 36 tests on real Postgres, Redis, S3 and the document worker
 pnpm scenario             # curated scenarios through the API, expected vs observed
 pnpm test:live            # live Switch loop (needs the local Switch setup)
 pnpm --filter @reissue/web test:e2e   # Workbench in a real browser
