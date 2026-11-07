@@ -18,7 +18,8 @@ export const MessagePayload = z.object({
   sender_kind: z.enum(["user", "agent", "platform"]).nullable().optional(),
   on_behalf_of: z.string().nullable().optional(),
   message_id: z.string(),
-  body: z.string(),
+  // Switch sends `body: null` for messages without text, such as room commands.
+  body: z.string().nullish().transform((body) => body ?? ""),
   timestamp: z.number(),
   thread_id: z.string().nullable(),
   attachments: z.array(AttachmentRef).default([]),
