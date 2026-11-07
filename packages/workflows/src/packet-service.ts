@@ -233,7 +233,7 @@ export async function generatePacket(svc: Services, shipmentId: string, epoch: n
 
     const ops = scope.shipment.opsRoomId
       ? { roomId: scope.shipment.opsRoomId, threadId: scope.shipment.opsThreadId }
-      : await primaryRoom(svc.db, scope.shipment.tenantId, "OPERATIONS").then((r) => (r ? { roomId: r.switchRoomId, threadId: null } : null));
+      : await primaryRoom(svc.db, svc.config, scope.shipment.tenantId, "OPERATIONS").then((r) => (r ? { roomId: r.switchRoomId, threadId: null } : null));
     const { token } = await issueDownloadToken(scope.tx, zipArtifact.id, "ops-room");
     const downloadUrl = `${svc.config.API_BASE_URL.replace(/\/+$/, "")}/v1/artifacts/${zipArtifact.id}/download?token=${token}`;
     const lastReplacement = replacements.at(-1);

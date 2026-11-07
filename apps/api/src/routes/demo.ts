@@ -111,7 +111,7 @@ export function demoRoutes(app: FastifyInstance, ctx: AppContext): void {
     const id = parse(ScenarioId, request.params.scenarioId);
     const scenario = SCENARIOS.find((s) => s.id === id)!;
     const files = await Promise.all(scenario.inputs.map(async (name) => ({ filename: name, bytes: await readFile(join(fixturesDir(), name)) })));
-    const ops = await primaryRoom(svc.db, svc.tenantId, "OPERATIONS");
+    const ops = await primaryRoom(svc.db, svc.config, svc.tenantId, "OPERATIONS");
     const actor = actorFor(request);
     const started = Date.now();
     const result = await ingest(svc, {

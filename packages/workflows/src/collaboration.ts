@@ -30,15 +30,15 @@ async function openIssues(scope: CaseScope): Promise<Issue[]> {
 
 async function opsTarget(svc: Services, shipment: Shipment): Promise<{ roomId: string; threadId: string | null } | null> {
   if (shipment.opsRoomId) return { roomId: shipment.opsRoomId, threadId: shipment.opsThreadId };
-  const room = await primaryRoom(svc.db, shipment.tenantId, "OPERATIONS");
+  const room = await primaryRoom(svc.db, svc.config, shipment.tenantId, "OPERATIONS");
   return room ? { roomId: room.switchRoomId, threadId: null } : null;
 }
 
 async function supplierRoomId(svc: Services, shipment: Shipment): Promise<string | null> {
   if (shipment.supplierRoomId) return shipment.supplierRoomId;
   const bindings = await svc.db.select().from(schema.roomBindings).where(eq(schema.roomBindings.tenantId, shipment.tenantId));
-  const supplierRooms = bindings.filter((b) => b.intent === "SUPPLIER");
-  return (supplierRooms.find((b) => b.supplierId && b.supplierId === shipment.supplierId) ?? supplierRooms[0])?.switchRoomId ?? null;
+  const dedicated = bindings.find((b) => b.intent === "SUPPLIER" && b.supplierId && b.supplierId === shipment.supplierId);
+  return dedicated?.switchRoomId ?? (await primaryRoom(svc.db, svc.config, shipment.tenantId, "SUPPLIER"))?.switchRoomId ?? null;
 }
 
 /**
