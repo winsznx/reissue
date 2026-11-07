@@ -76,6 +76,10 @@ Mattermost rooms on the same server (see [switch/setup.md](switch/setup.md)).
 | Console 0.40.0: managed agents | `switch/template.yaml` declares the examiner and liaison as managed Claude Code agents. It was validated with `save_template` on 0.31.0 | `switch/template.yaml` |
 | Agent protocol (WebSocket, ops, media) | `connection_state`, ping/pong, resume with `start_from` + `expected_generation`, `gap`, `evicted`; ops discovered at `GET /agents/{id}/ops`; media download and upload routes | `packages/switch-adapter` |
 
+While filming, Switch's Telegram adapter dropped a supplier's PDF after a single download
+timeout. The retry fix is proposed upstream in
+[sandbox-quantum/switch#1689](https://github.com/sandbox-quantum/switch/pull/1689).
+
 Turn Switch off and the Workbench can still parse an uploaded PDF. Without it, though, nobody can
 open a case from chat, the supplier can't answer in the shared conversation, and no handoff
 completes.
