@@ -266,7 +266,9 @@ async function handleSupplierMessage(svc: Services, binding: RoomBinding, roomId
     }
     return { status: "IGNORED", detail: "no open correction request in this room" };
   }
-  if (!msg.addressed && msg.thread_id !== shipment.supplierThreadId && !findCaseCodes(msg.body).includes(shipment.caseCode)) {
+  const inCaseConversation = msg.addressed || msg.thread_id === shipment.supplierThreadId || findCaseCodes(msg.body).includes(shipment.caseCode);
+  // Only this case waits on the supplier room, so a file sent straight into the chat is its revision.
+  if (!inCaseConversation && !msg.attachments.length) {
     return { status: "IGNORED", detail: "message is outside the case conversation" };
   }
   const actor = humanActor(msg, binding.platform);
