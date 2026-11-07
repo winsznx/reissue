@@ -2,11 +2,15 @@
 
 from __future__ import annotations
 
+import hashlib
+import io
 from collections.abc import Callable
 from typing import Any
 
 import pymupdf
 import pytest
+from openpyxl import load_workbook
+from PIL import Image
 
 from reissue_worker.fixtures import build_all
 from support import FIXTURES, Result, fields_by_path, fixture_bytes
@@ -40,11 +44,45 @@ def quantities(part: Result) -> list[str | None]:
     return [item["quantity"]["value"] if item["quantity"] else None for item in part["lineItems"]]
 
 
-def test_generator_is_deterministic_and_matches_committed_fixtures() -> None:
-    generated = build_all()
-    assert generated == build_all()
-    for name, content in generated.items():
-        assert (FIXTURES / name).read_bytes() == content, f"{name} is stale; rerun the fixture generator"
+def _content(name: str, data: bytes) -> object:
+    """What a fixture says, independent of how a platform's zlib and image codecs encode it.
+
+    Byte-identical output only holds on the platform that generated the committed files, so
+    PDFs compare by page size, image count and positioned words, images by size and mode, and
+    spreadsheets by cell values."""
+    if name.endswith(".pdf"):
+        with pymupdf.open(stream=data, filetype="pdf") as doc:
+            return [
+                (
+                    round(page.rect.width),
+                    round(page.rect.height),
+                    len(page.get_images()),
+                    [(round(w[0]), round(w[1]), w[4]) for w in page.get_text("words")],
+                )
+                for page in doc
+            ]
+    if name.endswith(".png"):
+        with Image.open(io.BytesIO(data)) as image:
+            return image.size, image.mode
+    if name.endswith(".xlsx"):
+        workbook = load_workbook(io.BytesIO(data), read_only=True)
+        return [[list(row) for row in sheet.iter_rows(values_only=True)] for sheet in workbook.worksheets]
+    return hashlib.sha256(data).hexdigest()
+
+
+def _digests(files: dict[str, bytes]) -> dict[str, str]:
+    return {name: hashlib.sha256(content).hexdigest() for name, content in files.items()}
+
+
+def test_generator_is_deterministic() -> None:
+    assert _digests(build_all()) == _digests(build_all())
+
+
+def test_committed_fixtures_say_what_the_generator_writes() -> None:
+    for name, content in build_all().items():
+        committed = (FIXTURES / name).read_bytes()
+        stale = f"{name} is stale; rerun the fixture generator"
+        assert _content(name, committed) == _content(name, content), stale
 
 
 def test_invoice_fields_and_lines(extract_fixture: Extract) -> None:
