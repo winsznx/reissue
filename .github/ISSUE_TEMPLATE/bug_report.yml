@@ -1,0 +1,37 @@
+name: Bug report
+description: Something in Reissue doesn't work the way the docs say
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected, and what you saw instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. scripts/stack.sh start
+        2. Post invoice-v1.pdf and packing-list-v1.pdf with "@reissue check these"
+        3. ...
+    validations:
+      required: true
+  - type: input
+    id: case
+    attributes:
+      label: Case code and Switch message id
+      description: For example SHP-0290. The Workbench timeline shows both.
+  - type: dropdown
+    id: chat
+    attributes:
+      label: Messaging app behind Switch
+      options: [Slack, Telegram, Mattermost (local), Other]
+  - type: textarea
+    id: env
+    attributes:
+      label: Environment
+      description: OS, Node and pnpm versions, Switch server version, and relevant log lines from .data/run/*.log with secrets removed.
+      render: text

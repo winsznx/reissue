@@ -1,12 +1,36 @@
+<p align="center">
+  <a href="https://github.com/winsznx/reissue/releases/download/v1.0.0/reissue-demo.mp4"><img src="docs/media/demo-thumbnail.png" alt="Reissue: wrong papers in, corrected papers out. The packing list's 480 becomes 500 after the supplier fixes it in Telegram." width="820"></a>
+</p>
+
 # Reissue
 
 **Wrong shipping papers in. Corrected shipment package out.**
 
-![A case in the Workbench: the packing list says 480 pcs against the invoice's 500, the supplier's revision arrives, and the open page rechecks to Ready for broker review without a reload](docs/media/reissue-loop.gif)
+[![CI](https://github.com/winsznx/reissue/actions/workflows/ci.yml/badge.svg)](https://github.com/winsznx/reissue/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-182020.svg)](LICENSE)
+[![Built on Switch](https://img.shields.io/badge/built%20on-Switch%200.31-3457e8.svg)](https://docs.switchagents.ai)
+[![Slack and Telegram](https://img.shields.io/badge/chat-Slack%20%2B%20Telegram-24755f.svg)](switch/setup.md)
 
-<sub>Recorded from a real run of the quantity-correction scenario (`apps/web/scripts/record-gif.mjs`). The revision is the scripted fixture `packing-list-v2.pdf`; the documents are controlled test documents.</sub>
+**[Watch the 2-minute demo](https://github.com/winsznx/reissue/releases/download/v1.0.0/reissue-demo.mp4)** ·
+[How it uses Switch](#switch-features-it-depends-on) · [Run it](#run-it-locally) ·
+[Measured results](docs/TEST_RESULTS.md) · [Release notes](CHANGELOG.md)
 
-Reissue is a teammate for small import and freight teams that lives in the chat they already use.
+Reissue is an AI teammate for import and freight teams. When a supplier's commercial invoice and
+packing list disagree, the customs broker won't move the goods. Reissue finds the exact row, gets
+the supplier to send a corrected file from their own Telegram group, rechecks it, and hands the
+team a broker-ready packet in Slack. Nobody leaves their chat.
+
+Built for **Flip the Switch** (WeMakeDevs, DevTools Academy and Switch), Track 01: Best Business
+Workflow.
+
+| On real Slack and Telegram | |
+|---|---|
+| Supplier's revised PDF to Ready for broker review | **0.41 s** (SHP-0290) |
+| Revised PDF to the ZIP in the Slack thread | **0.74 s** (SHP-0290) |
+| Two PDFs in Slack to the exact row, with page and row | **0.58 s** (SHP-0287) |
+| Planted discrepancies found on controlled test documents | **10 of 10**, with 0 false alerts |
+| Integration tests on real Postgres, Redis, S3 and the document worker | **36 of 36** |
+
 Drop a commercial invoice and packing list into the operations room and mention `@reissue`.
 Reissue then:
 
@@ -21,8 +45,35 @@ Reissue then:
 All of this runs on [Switch](https://docs.switchagents.ai): rooms, agent identities, follow-ups,
 agent-to-agent handoffs and file delivery.
 
-> "My invoice and packing list don't match. Find what is wrong, get the supplier to correct it, and
-> give me the current documents to send to my broker."
+```mermaid
+flowchart LR
+  subgraph slack["Slack: #shipment-ops"]
+    ops["Ops team"]
+  end
+  subgraph sw["Switch, self-hosted 0.31"]
+    co["reissue (coordinator)"]
+    ex["reissue-examiner"]
+    li["reissue-liaison"]
+  end
+  subgraph tg["Telegram: supplier group"]
+    sup["Supplier"]
+  end
+  subgraph rs["Reissue services"]
+    api["API and workflow worker"]
+    dw["Document worker: OCR, tables, fields"]
+    store[("Postgres, Redis, S3")]
+  end
+  ops -- "PDFs and @reissue" --> co
+  co -- "send_targeted_message" --> ex
+  co -- "send_targeted_message" --> li
+  li -- "correction request" --> sup
+  sup -- "reply with no @, revised PDF" --> li
+  sup -- "revised PDF" --> co
+  co --> api
+  api --> dw
+  api --> store
+  co -- "READY and the ZIP" --> ops
+```
 
 ## The loop
 
@@ -53,6 +104,16 @@ through a self-hosted Switch 0.31.0 server. On 2026-11-07, case SHP-0287 went fr
 revised PDF in Telegram to the ZIP in the Slack thread in 0.75 s. The scripted test runs use
 Mattermost rooms on the same server (see [switch/setup.md](switch/setup.md)).
 
+## The Workbench
+
+![A case in the Workbench: the packing list says 480 pcs against the invoice's 500, the supplier's revision arrives, and the open page rechecks to Ready for broker review without a reload](docs/media/reissue-loop.gif)
+
+<sub>A real run of the quantity-correction scenario, recorded with `apps/web/scripts/record-gif.mjs`.</sub>
+
+The web app opens on a public overview page at `/`. Behind sign-in, the Workbench shows each case
+with both documents side by side, evidence highlights on the cited rows, versions, a live
+timeline, decisions and downloads.
+
 ## What's in the box
 
 | Part | Path | What it does |
@@ -75,10 +136,6 @@ Mattermost rooms on the same server (see [switch/setup.md](switch/setup.md)).
 | Server 0.31.0: agent-to-agent messages | Coordinator → examiner (`DOCUMENT_REVIEW_REQUESTED`), coordinator → liaison (`SUPPLIER_REQUEST_ASSIGNED`), and both reply back, all via `send_targeted_message`. `delegate_task` isn't used and `verify:switch` checks it's absent | `packages/workflows/src/collaboration.ts`, `packages/contracts/src/agents.ts` |
 | Console 0.40.0: managed agents | `switch/template.yaml` declares the examiner and liaison as managed Claude Code agents. It was validated with `save_template` on 0.31.0 | `switch/template.yaml` |
 | Agent protocol (WebSocket, ops, media) | `connection_state`, ping/pong, resume with `start_from` + `expected_generation`, `gap`, `evicted`; ops discovered at `GET /agents/{id}/ops`; media download and upload routes | `packages/switch-adapter` |
-
-While filming, Switch's Telegram adapter dropped a supplier's PDF after a single download
-timeout. The retry fix is proposed upstream in
-[sandbox-quantum/switch#1689](https://github.com/sandbox-quantum/switch/pull/1689).
 
 Turn Switch off and the Workbench can still parse an uploaded PDF. Without it, though, nobody can
 open a case from chat, the supplier can't answer in the shared conversation, and no handoff
@@ -124,7 +181,7 @@ rooms.
 ## Tests
 
 ```bash
-pnpm test                 # unit tests: reconciler, adapter, artifacts, classifier, document worker
+pnpm turbo run test --filter='!@reissue/tests'   # unit tests: reconciler, adapter, artifacts, classifier, document worker
 pnpm test:integration     # 36 tests on real Postgres, Redis, S3 and the document worker
 pnpm scenario             # curated scenarios through the API, expected vs observed
 pnpm test:live            # live Switch loop (needs the local Switch setup)
@@ -132,8 +189,8 @@ pnpm --filter @reissue/web test:e2e   # Workbench in a real browser
 pnpm verify:packet <zip> --source <original.pdf>...   # check a downloaded packet yourself
 ```
 
-Results, timings and counts are in [docs/TEST_RESULTS.md](docs/TEST_RESULTS.md) and
-[docs/SPONSOR_BEHAVIOUR.md](docs/SPONSOR_BEHAVIOUR.md).
+CI runs types, lint, the build and the unit tests on every push. Results, timings and counts are in
+[docs/TEST_RESULTS.md](docs/TEST_RESULTS.md) and [docs/SPONSOR_BEHAVIOUR.md](docs/SPONSOR_BEHAVIOUR.md).
 
 ## Design rules
 
@@ -163,3 +220,18 @@ tests/       integration/ · end-to-end/ · fixtures/ · scenario-runs/
 scripts/     bootstrap · stack · switch-local · verify-switch · verify-packet · run-scenario
 docs/        SOURCES · SPONSOR_BEHAVIOUR · TEST_RESULTS · DEMO_SCRIPT · KNOWN_BEHAVIOUR
 ```
+
+## Contributing back to Switch
+
+While filming, Switch's Telegram adapter dropped a supplier's PDF after a single `getFile` timeout,
+and the bridge relayed "attachment not relayed" instead of the file. We traced it to the adapter's
+one-shot download and sent the fix upstream:
+[sandbox-quantum/switch#1689](https://github.com/sandbox-quantum/switch/pull/1689) retries a
+network failure up to three times and still fails a definite refusal at once. It comes with three
+adapter tests, and 3,269 bridge tests pass.
+
+## Contributing and license
+
+Issues and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md), the
+[Code of Conduct](CODE_OF_CONDUCT.md) and the [security policy](SECURITY.md). Reissue is released
+under the [MIT License](LICENSE).
