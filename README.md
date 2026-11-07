@@ -63,7 +63,7 @@ Mattermost rooms on the same server (see [switch/setup.md](switch/setup.md)).
 | Workflow worker | `apps/worker`, `packages/workflows` | Durable jobs for extraction, reconcile, handoffs, supplier asks, reminders, escalation and packets |
 | Document worker | `apps/document-worker` (Python) | Classifies by content, splits combined PDFs, extracts tables and fields with page, bbox and quote, OCR fallback, XLSX |
 | Reconciler | `packages/core` | Decimal-exact unit normalisation, SKU-first Hungarian line matching, 12 rule types, root-cause issue grouping, state machines |
-| Workbench | `apps/web` | Document compare with evidence highlights, issues, versions, live timeline, decisions, downloads, scenarios |
+| Workbench | `apps/web` | Public overview page at `/`. Behind sign-in: document compare with evidence highlights, issues, versions, live timeline, decisions, downloads, scenarios |
 | Packet | `packages/artifacts` | ZIP of unaltered current files, `correction-summary.pdf`, `document-index.csv`, all hash-verified |
 
 ## Switch features it depends on
@@ -90,9 +90,11 @@ pnpm bootstrap                 # deps, .env with secrets, Postgres/Redis/S3, mig
 scripts/stack.sh start         # document worker, API :4210, workflow worker, Workbench :3210
 ```
 
-Open http://localhost:3210 and sign in with the access code printed by bootstrap
-(`WORKBENCH_ACCESS_CODE` in `.env`). Then go to **Verification → Start** to run any curated
-scenario through the real pipeline.
+Open http://localhost:3210 for the overview page. **Open the Workbench** signs you in with the
+access code printed by bootstrap (`WORKBENCH_ACCESS_CODE` in `.env`). Then go to
+**Verification → Start** to run any curated scenario through the real pipeline. Scenarios post
+into whichever operations room is bound, so with Slack connected they appear in your Slack
+channel.
 
 ### With Switch (local, no external accounts)
 
