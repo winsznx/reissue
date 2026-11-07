@@ -84,12 +84,18 @@ function buildServer(ctx: AppContext, role: ToolRole): McpServer {
   if (role === "liaison") {
     server.registerTool(
       "list_supplier_cases",
-      { description: "Case codes currently waiting on the supplier, with the supplier thread status. No document contents." },
+      { description: "Case codes in this supplier room that are waiting on the supplier, with the supplier thread status. No document contents." },
       async () => {
         const rows = await svc.db
           .select({ code: schema.shipments.caseCode, state: schema.shipments.state, thread: schema.shipments.supplierThreadId, roomId: schema.shipments.supplierRoomId })
           .from(schema.shipments)
-          .where(and(eq(schema.shipments.tenantId, svc.tenantId), inArray(schema.shipments.state, ["WAITING_ON_SUPPLIER", "NEEDS_CLARIFICATION", "RECHECKING"])));
+          .where(
+            and(
+              eq(schema.shipments.tenantId, svc.tenantId),
+              inArray(schema.shipments.state, ["WAITING_ON_SUPPLIER", "NEEDS_CLARIFICATION", "RECHECKING"]),
+              svc.config.SWITCH_SUPPLIER_ROOM_ID ? eq(schema.shipments.supplierRoomId, svc.config.SWITCH_SUPPLIER_ROOM_ID) : undefined,
+            ),
+          );
         return json(rows.map((r) => ({ case: r.code, state: r.state, requestPosted: Boolean(r.thread) })));
       },
     );
