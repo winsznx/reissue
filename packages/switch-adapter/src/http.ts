@@ -1,4 +1,8 @@
-import { SwitchHttpError, type OperationSpec, type Participant, type ReadContextResult } from "./types.js";
+import { SwitchHttpError, type ContextEntry, type OperationSpec, type Participant, type ReadContextResult } from "./types.js";
+
+/** `read_context` as Switch sends it: entries without text, such as room commands, carry `body: null`. */
+type RawContextEntry = Omit<ContextEntry, "body"> & { body: string | null };
+type RawReadContextResult = Omit<ReadContextResult, "threads"> & { threads: { root: RawContextEntry; replies: RawContextEntry[] }[] };
 
 export interface SwitchAgentCredentials {
   baseUrl: string;
@@ -154,8 +158,10 @@ export class SwitchClient {
     return this.op("send_targeted_message", { body, target_names: targetNames, thread_id: threadId ?? undefined }, connectionId);
   }
 
-  readContext(roomId: string, options: { limit?: number; since?: string } = {}): Promise<ReadContextResult> {
-    return this.op("read_context", { room_id: roomId, limit: options.limit ?? 50, since: options.since });
+  async readContext(roomId: string, options: { limit?: number; since?: string } = {}): Promise<ReadContextResult> {
+    const context = await this.op<RawReadContextResult>("read_context", { room_id: roomId, limit: options.limit ?? 50, since: options.since });
+    const entry = (raw: RawContextEntry): ContextEntry => ({ ...raw, body: raw.body ?? "" });
+    return { ...context, threads: context.threads.map((t) => ({ root: entry(t.root), replies: t.replies.map(entry) })) };
   }
 
   listParticipants(connectionId: string): Promise<Participant[]> {
