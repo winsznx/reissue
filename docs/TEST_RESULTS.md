@@ -27,7 +27,7 @@ Where something wasn't tested, this file says so.
 | File screening, supplier-safe text | `pnpm --filter @reissue/workflows test` | 9 / 9 |
 | Document worker (classification, extraction, OCR, XLSX, limits, model gap-fill with a mocked CLI) | `pnpm --filter @reissue/document-worker test` | 135 / 135 |
 | Integration on real Postgres, Redis, S3 and the document worker | `pnpm test:integration` | 36 / 36 |
-| Workbench in Chromium | `pnpm --filter @reissue/web test:e2e` | 9 / 9 |
+| Workbench in Chromium | `pnpm --filter @reissue/web test:e2e` | 9 / 9 on 2026-11-05. On 2026-11-07 the overview page and sign-in specs: 7 / 7 |
 | Typecheck, lint, production build in all 14 packages | `npx turbo run typecheck lint build` | 40 / 40 tasks |
 
 ### What the integration suite covers
@@ -94,6 +94,7 @@ person played both roles on two real accounts, and nothing was scripted.
 |---|---|
 | SHP-0286 | Stopped after the examiner. The supplier handoff named the old Mattermost room. Fixed the same morning, with a regression test |
 | SHP-0287 | Full loop. Slack upload, examiner review, request in the Telegram group, untagged reply and revised PDF in Telegram, then READY and the ZIP in the Slack thread. From the supplier's PDF to the ZIP in Slack took 0.75 s |
+| SHP-0290 | The filmed run, driven through the Slack and Telegram web apps by a script using the person's own sessions. The first supplier PDF timed out inside Switch's Telegram adapter, and the liaison asked for it again. The second send reached Ready in 0.41 s and the Slack ZIP in 0.74 s |
 
 Timings per Switch primitive are in [SPONSOR_BEHAVIOUR.md](SPONSOR_BEHAVIOUR.md). In the last clean
 run the examiner result came 112 s after the handoff. The review itself took 14.8 s, and the rest

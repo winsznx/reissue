@@ -111,6 +111,22 @@ fix has a test or a live re-run:
   text arrives, and that answer then asks for the file. If the supplier sends the text, waits
   for the liaison, and then sends the file, the conversation reads naturally.
 
+The demo film is from a second run, SHP-0290. A script drove the real Slack and Telegram web apps
+through the person's own signed-in sessions, and three screen recorders ran at the same time:
+
+- Under that recording load, the Slack side was slower than in SHP-0287. The mismatch was posted
+  9.6 s after Switch delivered the message, and the examiner's review came back 39.9 s after the
+  handoff.
+- Switch's Telegram adapter timed out fetching the supplier's first PDF (`get_file`, `TimedOut`).
+  It passed the message on as `_attachment not relayed: packing-list-v2.pdf — download failed:
+  Timed out_`, with no file. The liaison told the supplier the download had timed out and asked
+  them to attach the PDF again.
+- The second send went through. From Switch's timestamp of that message, the case was Ready
+  for broker review after 0.41 s, and the ZIP was in the Slack thread after 0.74 s.
+- The coordinator ignores Switch's "attachment not relayed" note when it arrives outside the
+  request thread. The supplier still got an answer, because the liaison is the group's assigned
+  agent. Without an assigned liaison, the note would go unanswered.
+
 Connection notes from the same run:
 
 - Switch refuses a Telegram connection with `channel_creation_enabled: true`, because Telegram
