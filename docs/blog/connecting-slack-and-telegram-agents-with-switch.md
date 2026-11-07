@@ -2,6 +2,10 @@
 
 The invoice said 500 pieces of LL-STR-050 and the packing list said 480, both on page 1, row 3. Getting the supplier to fix it meant asking in their own Telegram group, and when they answered without tagging anyone, the reply still reached the right agent. Seventeen seconds later, that agent's relay was recorded on the case.
 
+In plain terms, a supplier's paperwork had the wrong number, and someone had to chase them to fix it. I built three AI agents that do the chasing inside Slack and Telegram, with Switch connecting the agents, the people and the two chat apps. This post shows how to wire that up and the six things that went wrong on the way.
+
+Here's the two-minute demo: https://youtu.be/vKjUc5GknYc
+
 This is the setup behind it, for anyone new to Switch.
 
 ## What Reissue does
