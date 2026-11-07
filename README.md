@@ -48,9 +48,10 @@ Dana: @reissue check these  ──files──▶  reissue (coordinator)
     02-packing-list-v2.pdf   correction-summary.pdf   document-index.csv
 ```
 
-Each arrow above is a real Switch message. In the local verification setup the two chats are
-Mattermost rooms on a self-hosted Switch 0.31.0 server, and the same code binds to Slack and
-Telegram (see [switch/setup.md](switch/setup.md)).
+Each arrow above is a real Switch message. The loop has run on real Slack and Telegram accounts
+through a self-hosted Switch 0.31.0 server. On 2026-11-07, case SHP-0287 went from the supplier's
+revised PDF in Telegram to the ZIP in the Slack thread in 0.75 s. The scripted test runs use
+Mattermost rooms on the same server (see [switch/setup.md](switch/setup.md)).
 
 ## What's in the box
 
@@ -62,7 +63,7 @@ Telegram (see [switch/setup.md](switch/setup.md)).
 | Workflow worker | `apps/worker`, `packages/workflows` | Durable jobs for extraction, reconcile, handoffs, supplier asks, reminders, escalation and packets |
 | Document worker | `apps/document-worker` (Python) | Classifies by content, splits combined PDFs, extracts tables and fields with page, bbox and quote, OCR fallback, XLSX |
 | Reconciler | `packages/core` | Decimal-exact unit normalisation, SKU-first Hungarian line matching, 12 rule types, root-cause issue grouping, state machines |
-| Workbench | `apps/web` | Document compare with evidence highlights, issues, versions, live timeline, decisions, downloads, scenarios |
+| Workbench | `apps/web` | Public overview page at `/`. Behind sign-in: document compare with evidence highlights, issues, versions, live timeline, decisions, downloads, scenarios |
 | Packet | `packages/artifacts` | ZIP of unaltered current files, `correction-summary.pdf`, `document-index.csv`, all hash-verified |
 
 ## Switch features it depends on
@@ -89,9 +90,11 @@ pnpm bootstrap                 # deps, .env with secrets, Postgres/Redis/S3, mig
 scripts/stack.sh start         # document worker, API :4210, workflow worker, Workbench :3210
 ```
 
-Open http://localhost:3210 and sign in with the access code printed by bootstrap
-(`WORKBENCH_ACCESS_CODE` in `.env`). Then go to **Verification → Start** to run any curated
-scenario through the real pipeline.
+Open http://localhost:3210 for the overview page. **Open the Workbench** signs you in with the
+access code printed by bootstrap (`WORKBENCH_ACCESS_CODE` in `.env`). Then go to
+**Verification → Start** to run any curated scenario through the real pipeline. Scenarios post
+into whichever operations room is bound, so with Slack connected they appear in your Slack
+channel.
 
 ### With Switch (local, no external accounts)
 
@@ -109,15 +112,16 @@ and liaison call `claude`, so Claude Code needs to be installed and signed in.
 
 ### With Slack and Telegram
 
-Follow [switch/setup.md](switch/setup.md), path B. The Telegram group has to be created by hand,
-because bots can't create groups. Then `pnpm --filter @reissue/switch-coordinator connect-rooms`
-binds the rooms.
+Follow [switch/setup.md](switch/setup.md), path B, either in Switch Console or straight through
+the gateway API on the local server. The Telegram group has to be created by hand, because bots
+can't create groups. Then `pnpm --filter @reissue/switch-coordinator connect-rooms` binds the
+rooms.
 
 ## Tests
 
 ```bash
 pnpm test                 # unit tests: reconciler, adapter, artifacts, classifier, document worker
-pnpm test:integration     # 35 tests on real Postgres, Redis, S3 and the document worker
+pnpm test:integration     # 36 tests on real Postgres, Redis, S3 and the document worker
 pnpm scenario             # curated scenarios through the API, expected vs observed
 pnpm test:live            # live Switch loop (needs the local Switch setup)
 pnpm --filter @reissue/web test:e2e   # Workbench in a real browser

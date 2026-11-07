@@ -1,7 +1,8 @@
 # Test results
 
-All of these runs were on 2026-11-05 against the build at the head of `main`. The numbers are
-counts from actual runs. Where something wasn't tested, this file says so.
+These runs were on 2026-11-05, with the Slack and Telegram run and its regression tests added on
+2026-11-07, all against the build at the head of `main`. The numbers are counts from actual runs.
+Where something wasn't tested, this file says so.
 
 ## Software
 
@@ -11,7 +12,7 @@ counts from actual runs. Where something wasn't tested, this file says so.
 | Python (document worker) | 3.12.14 |
 | Tesseract | 5.5.4 |
 | PostgreSQL / Redis / SeaweedFS (S3) | 16.15 / 7.4.11 / 4.48 |
-| Switch server | switch-core 0.31.0, self-hosted, Mattermost 11.9.0 bridge |
+| Switch server | switch-core 0.31.0, self-hosted. Mattermost 11.9.0 bridge, plus Slack (Socket Mode) and Telegram (bot polling) on 2026-11-07 |
 | Specialist agents | Claude Code 2.1.311, headless, the CLI's default model |
 | Workbench | Next.js 16.4.5, React 19.3, Playwright Chromium |
 
@@ -20,13 +21,13 @@ counts from actual runs. Where something wasn't tested, this file says so.
 | Suite | Command | Result |
 |---|---|---|
 | Reconciler, state machines, versioning | `pnpm --filter @reissue/core test` | 38 / 38 passed |
-| Switch WebSocket client | `pnpm --filter @reissue/switch-adapter test` | 5 / 5 |
+| Switch WebSocket client, null message bodies | `pnpm --filter @reissue/switch-adapter test` | 7 / 7 |
 | Packet, index, summary PDF | `pnpm --filter @reissue/artifacts test` | 7 / 7 |
 | Supplier reply and pack-size parsing | `pnpm --filter @reissue/ai test` | 13 / 13 |
 | File screening, supplier-safe text | `pnpm --filter @reissue/workflows test` | 9 / 9 |
-| Document worker (classification, extraction, OCR, XLSX, limits, model gap-fill with a mocked CLI) | `pnpm --filter @reissue/document-worker test` | 132 / 132 |
-| Integration on real Postgres, Redis, S3 and the document worker | `pnpm test:integration` | 35 / 35 |
-| Workbench in Chromium | `pnpm --filter @reissue/web test:e2e` | 9 / 9 |
+| Document worker (classification, extraction, OCR, XLSX, limits, model gap-fill with a mocked CLI) | `pnpm --filter @reissue/document-worker test` | 135 / 135 |
+| Integration on real Postgres, Redis, S3 and the document worker | `pnpm test:integration` | 36 / 36 |
+| Workbench in Chromium | `pnpm --filter @reissue/web test:e2e` | 9 / 9 on 2026-11-05. On 2026-11-07 the overview page and sign-in specs: 7 / 7 |
 | Typecheck, lint, production build in all 14 packages | `npx turbo run typecheck lint build` | 40 / 40 tasks |
 
 ### What the integration suite covers
@@ -50,6 +51,7 @@ counts from actual runs. Where something wasn't tested, this file says so.
 | E2E-16 Switch down | Switch outage | Message stays `PENDING`, then is delivered exactly once |
 | E2E-17 packet hashes | correction-loop | ZIP entries are byte-identical to the stored source bytes and the fixtures |
 | E2E-18 reminder after resolution | correction-loop, reminders | No reminder. One per step while unanswered, one escalation |
+| Supplier room moved to another chat | inbound › room bindings after a rebind | The room set in config wins over the binding it replaced |
 | Retention, signed links, room safety, combined PDF, misleading filename, XLSX, PNG, quarantine of foreign references, dropped attachments | various | All pass |
 
 ## Curated scenarios through the API
@@ -82,6 +84,17 @@ people's actions are scripted. Raw results are in `tests/scenario-runs/`.
 | clean | 4 | 4 | One READY and one packet each |
 | still-wrong | 1 | 1 | Focused follow-up 545 ms after the wrong revision |
 | worker-restart | 2 | 2 | Exactly one READY in both. Recovery took 152 s with the old 120 s job lock and 2.3 s after shortening it |
+
+### Slack and Telegram
+
+On 2026-11-07 the server was connected to a real Slack workspace and a real Telegram group. One
+person played both roles on two real accounts, and nothing was scripted.
+
+| Case | Result |
+|---|---|
+| SHP-0286 | Stopped after the examiner. The supplier handoff named the old Mattermost room. Fixed the same morning, with a regression test |
+| SHP-0287 | Full loop. Slack upload, examiner review, request in the Telegram group, untagged reply and revised PDF in Telegram, then READY and the ZIP in the Slack thread. From the supplier's PDF to the ZIP in Slack took 0.75 s |
+| SHP-0290 | The filmed run, driven through the Slack and Telegram web apps by a script using the person's own sessions. The first supplier PDF timed out inside Switch's Telegram adapter, and the liaison asked for it again. The second send reached Ready in 0.41 s and the Slack ZIP in 0.74 s |
 
 Timings per Switch primitive are in [SPONSOR_BEHAVIOUR.md](SPONSOR_BEHAVIOUR.md). In the last clean
 run the examiner result came 112 s after the handoff. The review itself took 14.8 s, and the rest
@@ -136,10 +149,8 @@ only when they appear verbatim on the page. That was 2 values in this run, and n
 
 ## Not yet done
 
-- **Slack and Telegram live runs.** Every live run used Switch's Mattermost bridge, because no Slack
-  or Telegram credentials are available in this environment. The coordinator and agents don't
-  change between messaging apps, but the Telegram 20 MB path and `/assign_agent` haven't been
-  exercised on Telegram itself.
+- **Telegram's 20 MB limit.** A file too big for the bridge got the case's upload link on
+  Mattermost. That path hasn't been tried with a file over 20 MB on Telegram itself.
 - **Console-managed specialists.** `switch/template.yaml` passed `save_template` validation. The
   managed agents themselves weren't run, because that needs Switch Console on this machine. The
   runs above used the hosted agent runtime.

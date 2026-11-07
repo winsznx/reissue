@@ -83,6 +83,49 @@ These steps need your accounts. Credentials go into Switch Console, never into t
 8. Restart with `scripts/stack.sh restart`. Check `GET /v1/health`, where `coordinator` should
    report every room connection live.
 
+### Path B without Console: the gateway API
+
+The live Slack and Telegram run on 2026-11-07 was connected this way, on the Path A server. Log
+in once and keep the cookie. The password is `GATEWAY_ADMIN_PASSWORD` in `.data/switch/.env`.
+
+```bash
+curl -c gw.txt -H 'content-type: application/json' http://127.0.0.1:8000/gateway/auth/login \
+  -d '{"email":"admin@switch.local","password":"<GATEWAY_ADMIN_PASSWORD>"}'
+```
+
+1. **Telegram.** Create the bot in @BotFather and turn Group Privacy off. Then create the
+   connection:
+
+   ```bash
+   curl -b gw.txt -H 'content-type: application/json' http://127.0.0.1:8000/gateway/collaborations \
+     -d '{"bridge_type":"telegram","display_name":"Telegram","channel_creation_enabled":false,
+          "connection_config":{"bot_token":"<token>","bot_username":"<bot username>"}}'
+   ```
+
+   `channel_creation_enabled` has to be false, because Telegram bots can't create chats. Switch
+   polls Telegram, so nothing needs a public URL. Add the bot to the group you made, and Switch
+   adopts the group as a room.
+2. **Slack.**
+   1. `GET /gateway/collaborations/setup/slack` returns the app manifest (Socket Mode). Create
+      the app from it and install it.
+   2. Make an `xapp-` token with `connections:write`.
+   3. `POST /gateway/collaborations/setup/slack/check` with `{"bot_token","app_token"}` returns
+      the workspace id.
+   4. Create the connection with `bridge_type: "slack"` and
+      `connection_config: {bot_token, app_token, workspace_id, agent_usergroups: false}`. User
+      groups need a paid Slack plan.
+   5. Link yourself with `POST /gateway/collaborations/{bridge_id}/identities` and
+      `{"external_user_id":"U…","username":"…"}`.
+   6. In the channel, run `/invite @Agent Switch`.
+3. **Agents.**
+   1. `GET /gateway/rooms` lists the new rooms.
+   2. `POST /gateway/rooms/{room_id}/agents` with `{"agent_ids":[…]}` adds the agents. The ids are
+      in `.data/*-credentials.json`.
+   3. Run `pnpm --filter @reissue/switch-coordinator connect-rooms --ops <Slack room id> --supplier <Telegram room id>`,
+      then `scripts/stack.sh restart`.
+4. **Supplier group.** In the Telegram group, send `!follow-ups on` and
+   `!assign-agent @reissue-liaison`.
+
 ### Reissue MCP server for managed agents
 
 Each specialist sees only the tools its token unlocks.
