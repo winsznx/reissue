@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/media/demo-thumbnail.png" alt="Reissue: wrong papers in, corrected papers out. The packing list's 480 becomes 500 after the supplier fixes it in Telegram." width="820">
+  <a href="https://youtu.be/vKjUc5GknYc"><img src="docs/media/demo-thumbnail.png" alt="Watch the Reissue demo: the packing list's 480 becomes 500 after the supplier fixes it in Telegram." width="820"></a>
 </p>
 
 # Reissue
@@ -11,8 +11,9 @@
 [![Built on Switch](https://img.shields.io/badge/built%20on-Switch%200.31-3457e8.svg)](https://docs.switchagents.ai)
 [![Slack and Telegram](https://img.shields.io/badge/chat-Slack%20%2B%20Telegram-24755f.svg)](switch/setup.md)
 
-[How it uses Switch](#switch-features-it-depends-on) · [Run it](#run-it-locally) ·
-[Measured results](docs/TEST_RESULTS.md) · [Changelog](CHANGELOG.md)
+**[Watch the 2-minute demo](https://youtu.be/vKjUc5GknYc)** · [How it uses Switch](#switch-features-it-depends-on) ·
+[Run it](#run-it-locally) · [Measured results](docs/TEST_RESULTS.md) ·
+[Blog: wiring three agents across Slack and Telegram](docs/blog/connecting-slack-and-telegram-agents-with-switch.md)
 
 Reissue is an AI teammate for import and freight teams. When a supplier's commercial invoice and
 packing list disagree, the customs broker won't move the goods. Reissue finds the exact row, gets
