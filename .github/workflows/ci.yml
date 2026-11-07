@@ -34,7 +34,8 @@ jobs:
         run: pnpm turbo run test --filter='!@reissue/tests' --filter='!@reissue/document-worker'
       - name: Document worker tests
         working-directory: apps/document-worker
-        timeout-minutes: 15
+        timeout-minutes: 10
         env:
           OMP_THREAD_LIMIT: "1"
-        run: uv run pytest -v --durations=15
+          PYTHONUNBUFFERED: "1"
+        run: uv run pytest -o addopts="" -v --durations=15 -o faulthandler_timeout=60
