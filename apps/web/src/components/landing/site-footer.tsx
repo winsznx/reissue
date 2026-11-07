@@ -3,7 +3,7 @@ import type { ReactElement } from "react";
 
 import { ReissueLockup } from "./marks";
 import { Container, ExternalLink } from "./primitives";
-import { GITHUB_URL, SWITCH_DOCS_URL, WORKBENCH_HREF } from "./site";
+import { DEMO_VIDEO_URL, GITHUB_URL, SWITCH_DOCS_URL, SWITCH_PR_URL, WORKBENCH_HREF } from "./site";
 
 type FooterLink = { kind: "anchor" | "route" | "external"; href: string; label: string };
 
@@ -24,11 +24,15 @@ const FOOTER_COLUMNS: readonly { title: string; links: readonly FooterLink[] }[]
     links: [
       { kind: "route", href: WORKBENCH_HREF, label: "Open the Workbench" },
       { kind: "external", href: GITHUB_URL, label: "Source on GitHub" },
+      { kind: "external", href: DEMO_VIDEO_URL, label: "Demo video" },
     ],
   },
   {
     title: "Built on",
-    links: [{ kind: "external", href: SWITCH_DOCS_URL, label: "Switch docs" }],
+    links: [
+      { kind: "external", href: SWITCH_DOCS_URL, label: "Switch docs" },
+      { kind: "external", href: SWITCH_PR_URL, label: "Our fix to Switch (#1689)" },
+    ],
   },
 ];
 
