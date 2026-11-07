@@ -120,7 +120,9 @@ through the person's own signed-in sessions, and three screen recorders ran at t
 - Switch's Telegram adapter timed out fetching the supplier's first PDF (`get_file`, `TimedOut`).
   It passed the message on as `_attachment not relayed: packing-list-v2.pdf — download failed:
   Timed out_`, with no file. The liaison told the supplier the download had timed out and asked
-  them to attach the PDF again.
+  them to attach the PDF again. The adapter tries the download only once; a retry for network
+  failures is proposed upstream in
+  [sandbox-quantum/switch#1689](https://github.com/sandbox-quantum/switch/pull/1689).
 - The second send went through. From Switch's timestamp of that message, the case was Ready
   for broker review after 0.41 s, and the ZIP was in the Slack thread after 0.74 s.
 - The coordinator ignores Switch's "attachment not relayed" note when it arrives outside the
