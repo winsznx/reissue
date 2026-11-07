@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://github.com/winsznx/reissue/releases/download/v1.0.0/reissue-demo.mp4"><img src="docs/media/demo-thumbnail.png" alt="Reissue: wrong papers in, corrected papers out. The packing list's 480 becomes 500 after the supplier fixes it in Telegram." width="820"></a>
+  <img src="docs/media/demo-thumbnail.png" alt="Reissue: wrong papers in, corrected papers out. The packing list's 480 becomes 500 after the supplier fixes it in Telegram." width="820">
 </p>
 
 # Reissue
@@ -11,9 +11,8 @@
 [![Built on Switch](https://img.shields.io/badge/built%20on-Switch%200.31-3457e8.svg)](https://docs.switchagents.ai)
 [![Slack and Telegram](https://img.shields.io/badge/chat-Slack%20%2B%20Telegram-24755f.svg)](switch/setup.md)
 
-**[Watch the 2-minute demo](https://github.com/winsznx/reissue/releases/download/v1.0.0/reissue-demo.mp4)** ·
 [How it uses Switch](#switch-features-it-depends-on) · [Run it](#run-it-locally) ·
-[Measured results](docs/TEST_RESULTS.md) · [Release notes](CHANGELOG.md)
+[Measured results](docs/TEST_RESULTS.md) · [Changelog](CHANGELOG.md)
 
 Reissue is an AI teammate for import and freight teams. When a supplier's commercial invoice and
 packing list disagree, the customs broker won't move the goods. Reissue finds the exact row, gets
