@@ -167,7 +167,7 @@ export async function runReconcile(svc: Services, shipmentId: string, epoch: num
     const issues = await tx.select().from(schema.issues).where(eq(schema.issues.shipmentId, shipmentId));
     const openIssues = issues.filter((i) => isIssueOpen(i.status));
     const checksByKey = new Map<string, CheckResult>(outcome.checks.map((c) => [c.key, c]));
-    const opsRoom = shipment.opsRoomId ?? (await primaryRoom(svc.db, shipment.tenantId, "OPERATIONS"))?.switchRoomId ?? null;
+    const opsRoom = shipment.opsRoomId ?? (await primaryRoom(svc.db, svc.config, shipment.tenantId, "OPERATIONS"))?.switchRoomId ?? null;
     const opsThread = shipment.opsRoomId ? shipment.opsThreadId : null;
 
     if (outcome.ready) {

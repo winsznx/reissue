@@ -4,7 +4,7 @@ import { eq } from "drizzle-orm";
 import { buildApp } from "@reissue/api";
 import { newId, schema } from "@reissue/db";
 import type { MessagePayload } from "@reissue/switch-adapter";
-import { processInboundEvent, type ServiceHandle, type Services } from "@reissue/workflows";
+import { primaryRoom, processInboundEvent, type ServiceHandle, type Services } from "@reissue/workflows";
 
 import { drain, openCase, outbox, services, shipment, SUPPLIER_ROOM, TEST_ENV } from "../support/harness.js";
 
@@ -194,5 +194,21 @@ describe("files the chat app dropped", () => {
     const sent = (await outbox(svc, id)).filter((o) => o.dedupeKey.startsWith("missing_file:"));
     expect(sent).toHaveLength(1);
     expect(sent[0]!.content.kind === "post" && sent[0]!.content.body).toMatch(/\/upload\?case=SHP-\d+/);
+  });
+});
+
+describe("room bindings after a rebind", () => {
+  it("prefers the configured supplier room over the binding it replaced", async () => {
+    // #given the supplier room was moved to a new chat, so the old binding is still stored
+    const rebound = await services({ SWITCH_SUPPLIER_ROOM_ID: "test-room-supplier-rebound", SWITCH_SUPPLIER_PLATFORM: "telegram" });
+    try {
+      // #when
+      const room = await primaryRoom(rebound.svc.db, rebound.svc.config, rebound.svc.tenantId, "SUPPLIER");
+      // #then
+      expect(room?.switchRoomId).toBe("test-room-supplier-rebound");
+    } finally {
+      await rebound.svc.db.delete(schema.roomBindings).where(eq(schema.roomBindings.switchRoomId, "test-room-supplier-rebound"));
+      await rebound.close();
+    }
   });
 });

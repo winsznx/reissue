@@ -52,7 +52,17 @@ export async function bindingForRoom(db: Database, roomId: string): Promise<Room
   return row ?? null;
 }
 
-export async function primaryRoom(db: Database, tenantId: string, intent: RoomBinding["intent"]): Promise<RoomBinding | null> {
-  const rows = await listBindings(db, tenantId);
-  return rows.find((r) => r.intent === intent) ?? null;
+const CONFIGURED_ROOM = {
+  OPERATIONS: "SWITCH_OPS_ROOM_ID",
+  SUPPLIER: "SWITCH_SUPPLIER_ROOM_ID",
+  VERIFICATION: "SWITCH_VERIFICATION_ROOM_ID",
+} as const satisfies Record<RoomBinding["intent"], keyof AppConfig>;
+
+/**
+ * The room for an intent, preferring the one set in config. Rebinding a room (connect-rooms)
+ * keeps the previous room's binding, so without the preference an old room could win.
+ */
+export async function primaryRoom(db: Database, config: AppConfig, tenantId: string, intent: RoomBinding["intent"]): Promise<RoomBinding | null> {
+  const rows = (await listBindings(db, tenantId)).filter((r) => r.intent === intent);
+  return rows.find((r) => r.switchRoomId === config[CONFIGURED_ROOM[intent]]) ?? rows[0] ?? null;
 }
