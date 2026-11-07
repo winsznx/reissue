@@ -58,6 +58,7 @@ const SWITCH_FEATURES = [
   { feature: "File delivery", release: "Media routes", use: "Supplier PDFs come in and the packet goes back out." },
   { feature: "WebSocket agent protocol", release: "Resume and gap recovery", use: "The coordinator's connection can resume and recover missed messages." },
   { feature: "Managed agents", release: "Console 0.40", use: "Template included." },
+  { feature: "Upstream fix", release: "switch#1689", use: "Retries a Telegram file download that times out. We found it on a live run and sent the fix to Switch." },
 ] as const;
 
 function RoomCard({ room, className }: { room: ChatRoom; className?: string }): ReactElement {
