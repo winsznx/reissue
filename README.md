@@ -13,7 +13,7 @@
 
 **[Watch the 2-minute demo](https://youtu.be/vKjUc5GknYc)** · [How it uses Switch](#switch-features-it-depends-on) ·
 [Run it](#run-it-locally) · [Measured results](docs/TEST_RESULTS.md) ·
-[Blog: wiring three agents across Slack and Telegram](docs/blog/connecting-slack-and-telegram-agents-with-switch.md)
+[Blog: wiring three agents across Slack and Telegram](https://dev.to/winsznx/what-i-learned-wiring-three-agents-across-slack-and-telegram-with-switch-32cm)
 
 Reissue is an AI teammate for import and freight teams. When a supplier's commercial invoice and
 packing list disagree, the customs broker won't move the goods. Reissue finds the exact row, gets
